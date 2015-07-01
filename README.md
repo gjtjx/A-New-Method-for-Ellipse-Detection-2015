@@ -3,4 +3,4 @@
 
 This repository contains all the codes written and implemented for the paper 'A New Method for Ellipse Detection' by Carl J. Nelson, Philip T. G. Jackson and Boguslaw Obara in 2015.
 
-Please reference this repository (DOI: TBC) or the paper (DOI: TBC) when using these codes.
+Please reference this repository (DOI: TBC) or the paper (DOI: TBC) when using these codes. This repositoty is under a GNU General Public License v3.0 (see included "LICENSE" file).
