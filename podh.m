@@ -1,10 +1,56 @@
-function data = podh (bw,maxLength,resLength,resAngular,th)
-%% Parametrised Object Detection in 2D - Developed for Ellipses
+function data = podh (im,maxLength,resLength,resAngular,th)
+%% podh2, Parametrisable Object Detection in 2D with Hilbert-powered step detection (developed for ellipses)
+%
+% data = podh2 (im,maxLength,resLength,resAngular,th)
+%
+% Details   This function contains the parametrisable object detection
+%           algorithm, developed for ellipse detection, as implemented 
+%           for 'A New Method for Ellipse Detection' by Carl J.
+%           Nelson, Philip T. G. Jackson and Boguslaw Obara in 2015. This
+%           is the more advanced method that utilised the Hilbert transform
+%           to find steps in the erosion signals (c.f. pod2 and finite
+%           difference)
+%
+% Inputs    im - a 2D binary or greyscale image
+%           maxLength - maximum major axis length to search for (in
+%           pixels; default is the length of the smallest image dimension;
+%           if this argument is a vector then minLength = maxLength(1), 
+%           maxLength=maxLength(2), thus a minimum axis length can be set)
+%           resLength - the resolution to search for axis lengths between
+%           minLength and maxLength (default is 1)
+%           resAngular - the resolution to search for axis orientation
+%           between 0 and 180 degrees (default is 45 degrees)
+%           th - the threshold (within 0 and 1) over which any step in
+%           signal must be to contribute to the ellipse detection stage
+%
+% Outputs   data - a matrix of ellipses. Each row contains five elements:
+%           the center of the ellipse, its major and minor axes and
+%           orientation of the major axis.
+%
+% Examples:
+% data = podh2 (im,20,5), runs podh2 on im looking for ellipses of maximum
+% size 20 pixels and resolution of +/- 5 pixels and with angular
+% resolution of 45 degrees (the default), considers all signals with a step
+% of >=20% (default) the maximum to be contributing
+% data = podh2 (im,[10,20],[],5,0), runs pod2 on im looking for ellipses of
+% axis size between 10 and 20 pixels and angular resolution of 5 degrees, 
+% considers all signals with a step of >=0% the maximum to be contributing,
+% i.e. all steps
+%
+% Copyright 2015 Carl J. Nelson, Durham University, UK
+% 
+% License   See included <a href="./LICENSE/">file</a> or visit
+%           <a href="https://github.com/ChasNelson1990/...
+%              A-New-Method-for-Ellipse-Detection-2015/">The GitHub
+%              Repository</a>
+%
+% See also POD2, ELLIPSEDETECTION, PODEXPERIMENTS
+
 %% Inputs
 if nargin<5; th = 0.2; end
 if nargin<4; resAngular = 1; end
 if nargin<3; resLength = 1; end
-if nargin<2; maxLength = min(size(bw)); end
+if nargin<2; maxLength = min(size(im)); end
 if length(maxLength)>1
     minLength = maxLength(1);
     maxLength = maxLength(2);
@@ -12,7 +58,7 @@ else
     minLength = 1;
 end
 %% Set Up
-[m,n] = size(bw);
+[m,n] = size(im);
 lStepNumber = ceil((maxLength-minLength+1)/resLength);
 lengthSteps = linspace(minLength,maxLength,lStepNumber);
 aStepNumber = ceil(180/resAngular);
@@ -33,7 +79,7 @@ for lStep = 1:length(lengthSteps)
         se = false(pmax); se(p1(1),p1(2)) = true; se(p2(1),p2(2)) = true;
         clear r a p1 p2 pmin pmax
         %Erosion
-        granulometricSignals(:,:,lStep,aStep) = opterode(bw,se);
+        granulometricSignals(:,:,lStep,aStep) = opterode(im,se);
     end
 end
 clear lStep aStep lStepNumber aStepNumber se
@@ -72,9 +118,8 @@ X = 1:size(gap,1);
 idx = sub2ind(size(gap),X',majorOrientation(:));
 gap = gap(idx);
 gap = reshape(gap,size(granulometricSignals,1),size(granulometricSignals,2));
-minorOrientation = mod(majorOrientation-((90+resAngular)/resAngular),180/resAngular)+1+1;
-minorOrientation(minorOrientation==181) = 1;%TODO: fix in line above
-[y,x] = ndgrid(1:size(bw,1),1:size(bw,2));
+minorOrientation = mod(majorOrientation-((90+resAngular)/resAngular),180/resAngular)+1;
+[y,x] = ndgrid(1:m,1:n);
 idr = sub2ind(size(hilbdrop),y(:),x(:),minorOrientation(:));
 minorAxis = hilbdrop(idr);
 minorAxis = reshape(minorAxis,size(majorAxis));
@@ -106,25 +151,4 @@ data(:,3) = lengthSteps(majorAxis(idc));
 data(:,4) = lengthSteps(minorAxis(idc));
 data(:,5) = angularSteps(majorOrientation(idc));
 clear idc centroids m n lengthSteps majorAxis minorAxis angularSteps majorOrientation idc
-% %% Check No Detected Ellipse is Within Another
-% con = [];
-% if size(data,1)>1
-%     for i=1:size(data,1)
-%         bwi = ellipse2(size(bw),data(i,1:2),data(i,3),data(i,4),data(i,5));
-%         for j=i+1:size(data,1)
-%             distSq = (data(i,1)-data(j,1))^2 + (data(i,2)-data(j,2))^2;
-%             majSq = ((data(i,3)+data(i,4))^2)/4;
-%             if distSq<majSq
-%                 bwj = ellipse2(size(bw),data(j,1:2),data(j,3),data(j,4),data(j,5));
-%                 score = sum(bwi(:) & bwj(:))/ min(sum(bwi(:)>0),sum(bwj(:)>0));
-%                 if score>0.8
-%                     con = [con;i];
-%                     break
-%                 end
-%             end
-%         end
-%     end
-%     data(con,:) = [];
-%     clear i j bwi bwj distSq majSq con
-% end
 end

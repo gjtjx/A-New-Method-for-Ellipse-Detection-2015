@@ -1,7 +1,46 @@
-function granulometricSignals = pod2 (bw,maxLength,resLength,resAngular)
-%% Parametrised Object Detection in 2D - Developed for Ellipses
+function data = pod2 (bw,maxLength,resLength,resAngular)
+%% pod2, Parametrisable Object Detection in 2D (developed for ellipses)
+%
+% data = pod2 (bw,maxLength,resLength,resAngular)
+%
+% Details   This function contains the parametrisable object detection
+%           algorithm, developed for ellipse detection, as implemented 
+%           for 'A New Method for Ellipse Detection' by Carl J.
+%           Nelson, Philip T. G. Jackson and Boguslaw Obara in 2015. This
+%           is the simple, finite difference method described and is
+%           designed for low noise, binary images.
+% Inputs    bw - a 2D, low noise, binary image
+%           maxLength - maximum major axis length to search for (in
+%           pixels; default is the length of the smallest image dimension;
+%           if this argument is a vector then minLength = maxLength(1), 
+%           maxLength=maxLength(2), thus a minimum axis length can be set)
+%           resLength - the resolution to search for axis lengths between
+%           minLength and maxLength (default is 1)
+%           resAngular - the resolution to search for axis orientation
+%           between 0 and 180 degrees (default is 45 degrees)
+%
+% Outputs   data - a matrix of ellipses. Each row contains five elements:
+%           the center of the ellipse, its major and minor axes and
+%           orientation of the major axis.
+%
+% Examples:
+% data = pod2 (bw,20,5), runs pod2 on bw looking for ellipses of maximum
+% size 20 pixels and resolution of +/- 5 pixels and with angular
+% resolution of 45 degrees (the default)
+% data = pod2 (bw,[10,20],[],5), runs pod2 on bw looking for ellipses of
+% axis size between 10 and 20 pixels and angular resolution of 5 degrees
+%
+% Copyright 2015 Carl J. Nelson, Durham University, UK
+% 
+% License   See included <a href="./LICENSE/">file</a> or visit
+%           <a href="https://github.com/ChasNelson1990/...
+%              A-New-Method-for-Ellipse-Detection-2015/">The GitHub
+%              Repository</a>
+%
+% See also PODH, ELLIPSEDETECTION, PODEXPERIMENTS
+
 %% Inputs
-if nargin<4; resAngular = 1; end
+if nargin<4; resAngular = 45; end
 if nargin<3; resLength = 1; end
 if nargin<2; maxLength = min(size(bw)); end
 if length(maxLength)>1
@@ -35,7 +74,6 @@ for lStep = 1:length(lengthSteps)
         granulometricSignals(:,:,lStep,aStep) = opterode(bw,se);
     end
 end
-return
 clear lStep aStep lStepNumber aStepNumber se
 %% Find Drops in Signals
 granulometricPrime = diff(granulometricSignals,1,3);
@@ -44,8 +82,7 @@ primeMinima = squeeze(primeMinima);
 clear granulometricPrime granulometricSignals
 %% Major & Minor Axes
 [majorAxis,majorOrientation] = max(primeMinima,[],3);
-minorOrientation = mod(majorOrientation-((90+resAngular)/resAngular),180/resAngular)+1+1;
-minorOrientation(minorOrientation==181) = 1;%TODO: fix in line above
+minorOrientation = mod(majorOrientation-((90+resAngular)/resAngular),180/resAngular)+1;
 [y,x] = ndgrid(1:size(bw,1),1:size(bw,2));
 idr = sub2ind(size(primeMinima),y(:),x(:),minorOrientation(:));
 minorAxis = primeMinima(idr);
@@ -77,29 +114,4 @@ data(:,3) = lengthSteps(majorAxis(idc));
 data(:,4) = lengthSteps(minorAxis(idc));
 data(:,5) = angularSteps(majorOrientation(idc));
 clear idc centroids m n lengthSteps majorAxis minorAxis angularSteps majorOrientation idc
-% %% Check No Detected Ellipse is Within Another
-% con = [];
-% if size(data,1)>1
-%     for i=1:size(data,1)
-%         bwi = ellipse2(size(bw),data(i,1:2),data(i,3),data(i,4),data(i,5));
-% %         % Remove Ellipses that are connected to the image boundary
-% %         if max(imclearborder(bwi,8))==0
-% %             con = [con;i];
-% %         end
-%         for j=i+1:size(data,1)
-%             distSq = (data(i,1)-data(j,1))^2 + (data(i,2)-data(j,2))^2;
-%             majSq = ((data(i,3)+data(i,4))^2)/4;
-%             if distSq<majSq
-%                 bwj = ellipse2(size(bw),data(j,1:2),data(j,3),data(j,4),data(j,5));
-%                 score = sum(bwi(:) & bwj(:))/ min(sum(bwi(:)>0),sum(bwj(:)>0));
-%                 if score>0.8
-%                     con = [con;i];
-%                     break
-%                 end
-%             end
-%         end
-%     end
-%     data(con,:) = [];
-%     clear i j bwi bwj distSq majSq con
-% end
 end

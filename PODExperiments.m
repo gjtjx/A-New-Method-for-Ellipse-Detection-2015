@@ -1,8 +1,29 @@
 function PODExperiments(en,N)
-%% Experiments for paper: '[INSERT REFERENCE]'
-% Inputs:
-% Outputs:
-% Details:
+%% Experiments for 'A New Method for Ellipse Detection' by Nelson et al. (2015)
+%
+% PODExperiments(en,N)
+%
+% Details   This function contains all the experiments implemented for
+%           the paper 'A New Method for Ellipse Detection' by Carl J.
+%           Nelson, Philip T. G. Jackson and Boguslaw Obara in 2015.
+% Inputs    en - Experiment number, between 1 and 6
+%           N - number or repeat trials (only reqiured for certain
+%           experiments; default is 1)
+% Outputs   N/A - all experiments save their data to file
+%
+% Examples:
+% PODExperiments(4), runs the experiments used to create Figure 7
+% PODExperiments(2,10), runs the experiments used to create Figure 6b ten times
+%
+% Copyright 2015 Carl J. Nelson, Durham University, UK
+% 
+% License   See included <a href="./LICENSE/">file</a> or visit
+%           <a href="https://github.com/ChasNelson1990/...
+%              A-New-Method-for-Ellipse-Detection-2015/">The GitHub
+%              Repository</a>
+%
+% See also POD2, PODH, ELLIPSEDETECTION, ACCURACYMAPSCRIPTS
+
 %% Set-Up
 profile -memory
 switch en
@@ -171,9 +192,7 @@ switch en
 %% Experiment 3 - Different numbers of objects (non-overlapping)
     case 3
         % Inputs
-        if nargin==1
-            N = 1;
-        end
+        if nargin==1; N = 1; end
         % Create File for Results
         headers = {'N','number','POD:n','POD:time','POD:memory',...
             'POD:Jaqqard','PODH:n','PODH:time','PODH:memory','PODH:Jaqqard',...

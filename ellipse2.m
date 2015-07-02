@@ -1,4 +1,36 @@
-function bw = ellipse2(sz,pos,major,minor,phi)  
+function bw = ellipse2(sz,pos,major,minor,phi)
+%% ellipse2, a function to produce a binary image containing a single ellipse
+%
+% ellipse2(sz,pos,major,minor,phi)
+%
+% Details   This function produces a binary image containing a single
+%           filled ellipse with the given parameters.
+% Inputs    sz - desired size of image, if scalar image is square, if a
+%           vector image is sz(1) by sz(2)
+%           pos - centroid position within the image, if scalar ellipse is
+%           centere at [pos,pos], if a vector at [pos(1),pos(2)]
+%           major - major axis length (full) of the ellipse in pixels
+%           minor - minor axis length (full) of the ellipse in pixels
+%           phi - rotation of ellipse, i.e. angle going clockwise from the
+%           x axis of the image to the major axis of the ellipse
+% Outputs   bw - binary image
+%
+% Examples:
+% bw = ellipse2(20,10,6,2), creates an image of size 20x20 with an ellipse
+% centred at x=10, y=10 of size 6 (major) by 2 (minor) and orientated along
+% the x-axis
+% bw = ellipse2([100,50],[20,40],10,5,57), creates an image of size 100x50 
+% with an ellipse centred at x=20, y=40 of size 10 (major) by 5 (minor) 
+% nd orientated along 57 degrees to the x-axis
+% the x-axis
+%
+% Copyright 2015 Carl J. Nelson, Durham University, UK
+% 
+% License   See included <a href="./LICENSE/">file</a> or visit
+%           <a href="https://github.com/ChasNelson1990/...
+%              A-New-Method-for-Ellipse-Detection-2015/">The GitHub
+%              Repository</a>
+
 %% Inputs
 if nargin<5
     phi = 0;
@@ -26,6 +58,5 @@ x(x>n) = n; y(y>m) = m;
 idx = sub2ind(size(bw),round(y),round(x));
 bw(idx) = 1;
 %% Fill Ellipse
-%bw = bwfill(bw,'holes');%needed for octave
 bw = imfill(bw,'holes');
 end
