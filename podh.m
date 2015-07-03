@@ -44,7 +44,7 @@ function data = podh (im,maxLength,resLength,resAngular,th)
 %              A-New-Method-for-Ellipse-Detection-2015/">The GitHub
 %              Repository</a>
 %
-% See also POD2, ELLIPSEDETECTION, PODEXPERIMENTS
+% See also POD2, ELLIPTICALHOUGH, PODEXPERIMENTS
 
 %% Inputs
 if nargin<5; th = 0.2; end

@@ -1,7 +1,7 @@
-function data = ellipseDetection(im,maxLength,th)
-% ellipseDetection, Hough transform-based ellipse detection method
+function data = ellipticalHough(im,maxLength,th)
+% ellipticalHough, Hough transform-based ellipse detection method
 %
-% data = ellipseDetection(im,maxLength,th)
+% data = ellipticalHough(im,maxLength,th)
 %
 % Details   Fits an ellipse by examining all possible major axes
 %           (all pairs of points) and getting the minor axis using Hough 
@@ -29,15 +29,14 @@ function data = ellipseDetection(im,maxLength,th)
 % Based on  "A New Efficient Ellipse Detection Method" (Yonghong Xie 
 %           Qiang , Qiang Ji / 2002)
 %
-% Developed from    <a href="http://www.mathworks.com/matlabcentral/...
-%                       fileexchange/3970-ellipse-detection-using-...
-%                           1d-hough-transform">Ellipse Detection Using
-%                   1D Hough Transform</a> by <a href= "mailto:...
-%                       mys007@seznam.cz"> Martin Simonovsky</a>.
-%                   Release: 1.1 Release date: 25.7.2013
+% Developed from    Simonovsky, Martin (2013) <a href="http://www.mathworks.com/matlabcentral/...
+%                       fileexchange/3970-ellipse-detection-using-1d-hough-transform">
+%					Ellipse Detection Using 1D Hough Transform</a>, MATLAB Central 
+%					File Exchange. Retreived December, 2014.
+%                   Release 1.1. Release date 25th July 2013.
 % 
 % Examples:
-% data = ellipseDetection(im,[1,20],0.8), detects ellipses with axes of
+% data = ellipticalHough(im,[1,20],0.8), detects ellipses with axes of
 % lengths between 1 and 20 pixels using 0.8 as the accumulator array
 % threshold for accepted ellipses.
 %    

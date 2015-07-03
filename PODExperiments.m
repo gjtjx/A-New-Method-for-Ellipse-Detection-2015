@@ -22,7 +22,7 @@ function PODExperiments(en,N)
 %              A-New-Method-for-Ellipse-Detection-2015/">The GitHub
 %              Repository</a>
 %
-% See also POD2, PODH, ELLIPSEDETECTION, ACCURACYMAPSCRIPTS
+% See also POD2, PODH, ELLIPTICALHOUGH, ACCURACYMAPSCRIPTS
 
 %% Set-Up
 profile -memory
@@ -83,9 +83,9 @@ switch en
                 clear bwo
                 % Run Hough
                 profile on, edges = edge(bw,'canny');
-                hough = ellipseDetection(edges,(2*15)+1);
+                hough = ellipticalHough(edges,(2*15)+1);
                 stats = profile('info');
-                funct = find(cellfun(@(x)isequal(x,'ellipseDetection'),{stats.FunctionTable.FunctionName}));
+                funct = find(cellfun(@(x)isequal(x,'ellipticalHough'),{stats.FunctionTable.FunctionName}));
                 time = stats.FunctionTable(funct).TotalTime;
                 memory = stats.FunctionTable(funct).TotalMemAllocated;
                 data{rn,9} = num2str(time); data{rn,10} = num2str(memory);
@@ -165,9 +165,9 @@ switch en
                 clear bwo
                 % Run Hough
                 profile on, edges = edge(bw,'canny');
-                hough = ellipseDetection(edges,ks(k));
+                hough = ellipticalHough(edges,ks(k));
                 stats = profile('info');
-                funct = find(cellfun(@(x)isequal(x,'ellipseDetection'),{stats.FunctionTable.FunctionName}));
+                funct = find(cellfun(@(x)isequal(x,'ellipticalHough'),{stats.FunctionTable.FunctionName}));
                 time = stats.FunctionTable(funct).TotalTime;
                 memory = stats.FunctionTable(funct).TotalMemAllocated;
                 data{rn,9} = num2str(time); data{rn,10} = num2str(memory);
@@ -272,9 +272,9 @@ switch en
                 clear bwo
                 % Run Hough
                 profile on, edges = edge(bw,'canny');
-                hough = ellipseDetection(edges,(2*7)+1);
+                hough = ellipticalHough(edges,(2*7)+1);
                 stats = profile('info');
-                funct = find(cellfun(@(x)isequal(x,'ellipseDetection'),{stats.FunctionTable.FunctionName}));
+                funct = find(cellfun(@(x)isequal(x,'ellipticalHough'),{stats.FunctionTable.FunctionName}));
                 time = stats.FunctionTable(funct).TotalTime;
                 memory = stats.FunctionTable(funct).TotalMemAllocated;
                 data{rn,11} = num2str(size(hough,1));
@@ -348,7 +348,7 @@ switch en
                 data{6} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 % Run Hough
                 edges = edge(bw,'canny');
-                hough = ellipseDetection(edges,[15,40]);
+                hough = ellipticalHough(edges,[15,40]);
                 data{7}= num2str(size(hough,1));
                 % Hough Jaccard
                 bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(hough,1));
@@ -404,7 +404,7 @@ switch en
                     bwo = max(bwo,[],3);
                     data{9} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                     % Run Hough
-                    edges = edge(bw,'canny'); hough = ellipseDetection(edges);
+                    edges = edge(bw,'canny'); hough = ellipticalHough(edges);
                     l = size(hough,1); data{10} = num2str(l);
                     % Hough Jaccard
                     bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,l);
@@ -476,7 +476,7 @@ switch en
                 data{rn,6} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 % Run Hough
                 tic; edges = edge(bw1,'canny');
-                hough = ellipseDetection (edges,[5,k]);
+                hough = ellipticalHough (edges,[5,k]);
                 data{rn,9} = num2str(toc);
                 % Hough Jaccard
                 bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(hough,1));
