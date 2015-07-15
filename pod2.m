@@ -92,7 +92,6 @@ clear minorOrientation primeMinima resAngular x y idr
 backgroundM = (majorAxis==1); backgroundm = (minorAxis==1);
 background = backgroundM | backgroundm;
 majorAxis = majorAxis-1; minorAxis = minorAxis-1;
-majorOrientation = majorOrientation -1;%Can this be justified?
 majorAxis(background) = 1; majorAxis(majorAxis==0) = 1;
 majorOrientation(background) = 1; majorOrientation(majorOrientation==0) = 1;
 minorAxis(background) = 1; minorAxis(minorAxis==0) = 1;
@@ -101,7 +100,7 @@ clear backgroundM backgroundm background
 minorAxisMasked =  minorAxis.* (minorAxis>1);
 majorAxisMasked =  majorAxis.* (majorAxis>1);
 regionalPeaks = majorAxisMasked.*minorAxisMasked;
-%regionalPeaks = medfilt2(regionalPeaks, [3,3]);
+regionalPeaks = medfilt2(regionalPeaks, [3,3]);
 regionalMaxima = logical(regionalPeaks - imreconstruct(regionalPeaks-1,regionalPeaks));
 centroids = regionprops(regionalMaxima,'Centroid');
 centroids = reshape(cell2mat(struct2cell(centroids))',2,[])';
