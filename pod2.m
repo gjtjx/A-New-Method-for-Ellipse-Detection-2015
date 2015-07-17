@@ -49,6 +49,7 @@ if length(maxLength)>1
 else
     minLength = 1;
 end
+R=1;
 %% Set Up
 [m,n] = size(bw);
 lStepNumber = ceil((maxLength-minLength+1)/resLength);
@@ -71,7 +72,7 @@ for lStep = 1:length(lengthSteps)
         se = false(pmax); se(p1(1),p1(2)) = true; se(p2(1),p2(2)) = true;
         clear r a p1 p2 pmin pmax
         %Erosion
-        granulometricSignals(:,:,lStep,aStep) = opterode(bw,se);
+        granulometricSignals(:,:,lStep,aStep) = randerode(bw,se,R);%opterode(bw,se);
     end
 end
 clear lStep aStep lStepNumber aStepNumber se
