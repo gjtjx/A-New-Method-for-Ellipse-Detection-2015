@@ -43,13 +43,11 @@ idr = idr(:);
 idc = idc(:);
 
 %% 'Erode' at Chosen Pixels
-for px = 1:length(idx)
-    for kx = 1:length(idr)
-        shift = [floor(idr(kx)-sky/2),floor(idc(kx)-skx/2)];
-        currentMin = dst(idy(px),idx(px));
-        kernelValue = kernel(idr(kx),idc(kx));
-	    dst(idy(px),idx(px)) = min(B(idy(px)+shift(1),idx(px)+shift(2))-kernelValue,currentMin);
-    end
+for kx = 1:length(idr)
+	shift = [floor(idr(kx)-sky/2),floor(idc(kx)-skx/2)];
+    currentMin = dst(idy,idx);
+    kernelValue = kernel(idr(kx),idc(kx));
+    dst(idy,idx) = min(B(idy+shift(1),idx+shift(2))-kernelValue,currentMin);
 end
 
 %% Remove Padding
