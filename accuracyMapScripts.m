@@ -71,29 +71,46 @@ fclose(fileID);
 distx = dataArray{:, 1}; disty = dataArray{:, 2};
 PODn = dataArray{:, 3}; PODHn = dataArray{:, 5}; Houghn = dataArray{:, 7};
 % Create Maps
-sz = max(distx(:)) - min(distx(:));
-pos = floor(sz/2);
+sz = 211;%max(distx(:)) - min(distx(:));
+pos = 106;
 podmap = zeros(sz); podhmap = zeros(sz); houghmap = zeros(sz); nummap = zeros(sz);
-for i = 1:length(distx)
+distances = []; podmean = []; podhmean = []; houghmean = []; nummean = [];
+for i = 1:size(distx,1)
     podmap(pos+distx(i),pos+disty(i)) = podmap(pos+distx(i),pos+disty(i)) + PODn(i);
     podhmap(pos+distx(i),pos+disty(i)) = podhmap(pos+distx(i),pos+disty(i)) + PODHn(i);
     houghmap(pos+distx(i),pos+disty(i)) = houghmap(pos+distx(i),pos+disty(i)) + Houghn(i);
     nummap(pos+distx(i),pos+disty(i)) = nummap(pos+distx(i),pos+disty(i)) + 1;
+    dst = round(sqrt((distx(i))^2 + (disty(i))^2));
+    idm = find(distances==dst);
+    if isempty(idm)
+        distances(end+1) = dst;
+        podmean(end+1) = PODn(i);
+        podhmean(end+1) = PODHn(i);
+        houghmean(end+1) = Houghn(i);
+        nummean(end+1) = 1;
+    else
+        podmean(idm) = podmean(idm)+PODn(i);
+        podhmean(idm) = podhmean(idm)+PODHn(i);
+        houghmean(idm) = houghmean(idm)+Houghn(i);
+        nummean(idm) = nummean(idm) + 1;
+    end
 end
 % Normalise Pixels
 triv = (nummap==0);
 podmap = (podmap./nummap); podmap(triv) = 0;
 podhmap = (podhmap./nummap); podhmap(triv) = 0;
 houghmap = (houghmap./nummap); houghmap(triv) = 0;
-% Lavel 'Correct', 'Close', 'Not Computed' and 'Incorrect' (respectively)
-podmap2 = podmap; podhmap2 = podhmap; houghmap2 = houghmap;
-podmap2(podmap==2) = 2; podhmap2(podhmap==2) = 2; houghmap2(houghmap==2) = 2;%Correct, i.e. identified two
-podmap2(podmap==1) = 1; podhmap2(podhmap==1) = 1; houghmap2(houghmap==1) = 1;%Identified one
-podmap2(nummap==0) = 2; podhmap2(nummap==0) = 2;  houghmap2(nummap==0) = 2;%Not computed
-podmap2(podmap>=3) = 0; podhmap2(podhmap>=3) = 0; houghmap2(houghmap>=3) = 0;%Incorrect
+% Normalise and sort lists
+triv = (nummean==0); [distances,ids] = sort(distances);
+podmean = (podmean./nummean); podmean(triv) = 0; podmean = podmean(ids);
+podhmean = (podhmean./nummean); podhmean(triv) = 0; podhmean = podhmean(ids);
+houghmean = (houghmean./nummean); houghmean(triv) = 0; houghmean = houghmean(ids);
 
 % Plot
 figure('units','normalized','outerposition',[0 0 1 1])
-subplot(131), imagesc(podmap2); colormap gray; caxis([0,2]); axis image off;
-subplot(132), imagesc(podhmap2); colormap gray; caxis([0,2]); axis image off;
-subplot(133), imagesc(houghmap2); colormap gray; caxis([0,2]); axis image off;
+subplot(231), imagesc(abs(podmap-2)); colormap parula; axis image off; caxis([0,10]);
+subplot(232), imagesc(abs(podhmap-2)); colormap parula; axis image off; caxis([0,10]);
+subplot(233), imagesc(abs(houghmap-2)); colormap parula; axis image off; caxis([0,10]);
+subplot(234), plot(distances,podmean-2); xlim([0,sqrt(2*105^2)]); ylim([-2,10]);
+subplot(235), plot(distances,podhmean-2); xlim([0,sqrt(2*105^2)]); ylim([-2,10])
+subplot(236), plot(distances,houghmean-2); xlim([0,sqrt(2*105^2)]); ylim([-2,10])

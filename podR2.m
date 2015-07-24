@@ -1,7 +1,7 @@
-function data = pod2 (bw,maxLength,resLength,resAngular)
-%% pod2, Parametrisable Object Detection in 2D (developed for ellipses)
+function data = podR2 (bw,maxLength,resLength,resAngular,randRatio)
+%% podR2, Parametrisable Object Detection in 2D (developed for ellipses)
 %
-% data = pod2 (bw,maxLength,resLength,resAngular)
+% data = podR2 (bw,maxLength,resLength,resAngular)
 %
 % Details   This function contains the parametrisable object detection
 %           algorithm, developed for ellipse detection, as implemented 
@@ -18,6 +18,8 @@ function data = pod2 (bw,maxLength,resLength,resAngular)
 %           minLength and maxLength (default is 1)
 %           resAngular - the resolution to search for axis orientation
 %           between 0 and 180 degrees (default is 45 degrees)
+%           randRatio - the ratio of pixels to use (between 0 and 1) when
+%           selecting random source pixels for erosions
 %
 % Outputs   data - a matrix of ellipses. Each row contains five elements:
 %           the center of the ellipse, its major and minor axes and
@@ -37,12 +39,13 @@ function data = pod2 (bw,maxLength,resLength,resAngular)
 %              A-New-Method-for-Ellipse-Detection-2015/">The GitHub
 %              Repository</a>
 %
-% See also PODH, ELLIPTICALHOUGH, PODEXPERIMENTS
+% See also POD2, PODH, ELLIPTICALHOUGH, PODEXPERIMENTS
 
 %% Inputs
-if nargin<4; resAngular = 45; end
-if nargin<3; resLength = 1; end
-if nargin<2; maxLength = min(size(bw)); end
+if nargin<5; randRatio=1; end
+if nargin<4 || isempty(resAngular); resAngular = 45; end
+if nargin<3 || isempty(resLength); resLength = 1; end
+if nargin<2 || isempty(maxLength); maxLength = min(size(bw)); end
 if length(maxLength)>1
     minLength = maxLength(1);
     maxLength = maxLength(2);
@@ -72,7 +75,7 @@ for lStep = 1:length(lengthSteps)
         se = false(pmax); se(p1(1),p1(2)) = true; se(p2(1),p2(2)) = true;
         clear r a p1 p2 pmin pmax
         %Erosion
-        granulometricSignals(:,:,lStep,aStep) = opterode(bw,se);
+        granulometricSignals(:,:,lStep,aStep) = randerode(bw,se,randRatio);
     end
 end
 clear lStep aStep lStepNumber aStepNumber se

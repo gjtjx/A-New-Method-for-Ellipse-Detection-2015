@@ -43,6 +43,7 @@ idr = idr(:);
 idc = idc(:);
 
 %% 'Erode' at Chosen Pixels
+% Maxes out memory!
 for kx = 1:length(idr)
 	shift = [floor(idr(kx)-sky/2),floor(idc(kx)-skx/2)];
     currentMin = dst(idy,idx);

@@ -307,10 +307,10 @@ switch en
         fprintf(fid,'%s\r\n',headers);
         fclose(fid);
 %         [L,K] = readexp4();
-        distmax = 150;
-        distmin = -150;
-        major=round(2*50/3); minor=round(50/3);
-        xpos = 257; ypos = 257;
+        distmax = 105;
+        distmin = -105;
+        major=round(30); minor=round(20);
+        xpos = 128; ypos = 128;
         parfor l=distmin:distmax
             for k=distmin:distmax
 %                 test = sum(K(L==l)==k);
@@ -318,8 +318,8 @@ switch en
                 % Create Figure
                 sepx = (major+minor) * l/100;
                 sepy = (major+minor) * k/100;
-                idx1 = ellipse2(512,[xpos,ypos],major,minor,0);
-                idx2 = ellipse2(512,[xpos+sepx,ypos+sepy],major,minor,90);
+                idx1 = ellipse2(256,[xpos,ypos],major,minor,0);
+                idx2 = ellipse2(256,[xpos+sepx,ypos+sepy],major,minor,90);
                 bw = max(idx1,idx2);
                 % Data
                 data = cell(1,8);
@@ -327,7 +327,7 @@ switch en
                 data{2} = num2str(k);
                 % Data
                 % Run POD
-                pod = pod2 (bw,[15,35],1,45);
+                pod = pod2 (bw,[10,40],1,90);
                 data{3} = num2str(size(pod,1));
                 % POD Jaccard
                 bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(pod,1));
@@ -337,7 +337,7 @@ switch en
                 bwo = max(bwo,[],3);
                 data{4} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 % Run PODH
-                pod = podh (bw,[15,40],1,1);
+                pod = podh (bw,[10,40],1,90);
                 data{5} = num2str(size(pod,1));
                 % PODH Jaccard
                 bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(pod,1));
@@ -348,7 +348,7 @@ switch en
                 data{6} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 % Run Hough
                 edges = edge(bw,'canny');
-                hough = ellipticalHough(edges,[15,40]);
+                hough = ellipticalHough(edges,[10,40]);
                 data{7}= num2str(size(hough,1));
                 % Hough Jaccard
                 bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(hough,1));
