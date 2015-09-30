@@ -16,7 +16,7 @@ function PODExperiments(en,N)
 % PODExperiments(2,10), runs the experiments used to create Figure 6b ten times
 %
 % Copyright 2015 Carl J. Nelson, Durham University, UK
-% 
+%
 % License   See included <a href="./LICENSE/">file</a> or visit
 %           <a href="https://github.com/ChasNelson1990/...
 %              A-New-Method-for-Ellipse-Detection-2015/">The GitHub
@@ -32,8 +32,11 @@ switch en
         % Inputs
         if nargin==1; N = 1; end;
         % Create File for Results
-        headers = {'N','m','POD:time','POD:memory','POD:Jaqqard','PODH:time',...
-            'PODH:memory','PODH:Jaqqard','Hough:time','Hough:memory','Hough:Jaqqard'};
+        headers = {'N','m',...
+            'POD:time','POD:memory','POD:Jaccard',...
+            'PODH:time','PODH:memory','PODH:Jaccard',...
+            'Hough:time','Hough:memory','Hough:Jaccard',...
+            'EFT:time','EFT:memory','EFT:Jaccard'};
         headers = strjoin(headers,',');
         fid = fopen('experiment1.dat','w');
         fprintf(fid,'%s\r\n',headers); fclose(fid);
@@ -42,7 +45,7 @@ switch en
         rot=randi(180,1); ms = [64,128,256,512,1024];
         for m=1:length(ms)
             % Data
-            data = cell(N,11);
+            data = cell(N,14);
             data(:,2) = cellstr(num2str(repmat(ms(m),N,1)));
             % Create Image
             bw = ellipse2(ms(m),[ceil((ms(m)+1)/2),ceil((ms(m)+1)/2)],major,minor,rot);
@@ -83,7 +86,7 @@ switch en
                 clear bwo
                 % Run Hough
                 profile on, edges = edge(bw,'canny');
-                hough = ellipticalHough(edges,(2*15)+1);
+                data = ellipticalHough(edges,(2*15)+1);
                 stats = profile('info');
                 funct = find(cellfun(@(x)isequal(x,'ellipticalHough'),{stats.FunctionTable.FunctionName}));
                 time = stats.FunctionTable(funct).TotalTime;
@@ -91,12 +94,29 @@ switch en
                 data{rn,9} = num2str(time); data{rn,10} = num2str(memory);
                 profile off, clear stats funct time memory edges
                 % Hough Jaccard
-                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(hough,1));
-                for o=1:size(hough,1)
-                    bwo(:,:,o) = ellipse2(size(bw),[hough(o,1),hough(o,2)],hough(o,3),hough(o,4),hough(o,5));
+                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(data,1));
+                for o=1:size(data,1)
+                    bwo(:,:,o) = ellipse2(size(bw),[data(o,1),data(o,2)],data(o,3),data(o,4),data(o,5));
                 end
-                bwo = max(bwo,[],3); clear o hough
+                bwo = max(bwo,[],3); clear o data
                 data{rn,11} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
+                clear bwo
+                % Run Ellipses From Triangles (EFT)
+                profile on, edges = edge(bw,'canny');
+                data = ellipsesFromTriangles(edges,(2*15)+1);
+                stats = profile('info');
+                funct = find(cellfun(@(x)isequal(x,'ellipsesFromTriangles'),{stats.FunctionTable.FunctionName}));
+                time = stats.FunctionTable(funct).TotalTime;
+                memory = stats.FunctionTable(funct).TotalMemAllocated;
+                data{rn,12} = num2str(time); data{rn,13} = num2str(memory);
+                profile off, clear stats funct time memory edges
+                % EFT Jaccard
+                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(data,1));
+                for o=1:size(data,1)
+                    bwo(:,:,o) = ellipse2(size(bw),[data(o,1),data(o,2)],data(o,3),data(o,4),data(o,5));
+                end
+                bwo = max(bwo,[],3); clear o data
+                data{rn,14} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 clear bwo
             end
             % Append Data to File
@@ -112,8 +132,11 @@ switch en
         % Inputs
         if nargin==1; disp('Running only once'); N = 1; end;
         % Create File for Results
-        headers = {'N','k','POD:time','POD:memory','POD:Jaqqard','PODH:time',...
-            'PODH:memory','PODH:Jaqqard','Hough:time','Hough:memory','Hough:Jaqqard'};
+        headers = {'N','k',...
+            'POD:time','POD:memory','POD:Jaccard',...
+            'PODH:time','PODH:memory','PODH:Jaccard',...
+            'Hough:time','Hough:memory','Hough:Jaccard',...
+            'EFT:time','EFT:memory','EFT:Jaccard'};
         headers = strjoin(headers,',');
         fid = fopen('experiment2.dat','w');
         fprintf(fid,'%s\r\n',headers); fclose(fid);
@@ -122,11 +145,11 @@ switch en
         for k=1:length(ks)
             % Set-Up
             major=randi(7,1)+7; minor=randi(major-1,1)+1;
-            rot=randi(180,1); 
+            rot=randi(180,1);
             % Create Image
             bw = ellipse2(256,[ceil((256+1)/2),ceil((256+1)/2)],major,minor,rot);
             % Data
-            data = cell(N,11);
+            data = cell(N,14);
             data(:,2) = cellstr(num2str(repmat(ks(k),N,1)));
             for rn=1:N
                 % Data
@@ -165,7 +188,7 @@ switch en
                 clear bwo
                 % Run Hough
                 profile on, edges = edge(bw,'canny');
-                hough = ellipticalHough(edges,ks(k));
+                data = ellipticalHough(edges,ks(k));
                 stats = profile('info');
                 funct = find(cellfun(@(x)isequal(x,'ellipticalHough'),{stats.FunctionTable.FunctionName}));
                 time = stats.FunctionTable(funct).TotalTime;
@@ -173,12 +196,29 @@ switch en
                 data{rn,9} = num2str(time); data{rn,10} = num2str(memory);
                 profile off, clear stats funct time memory edges
                 % Hough Jaccard
-                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(hough,1));
-                for o=1:size(hough,1)
-                    bwo(:,:,o) = ellipse2(size(bw),[hough(o,1),hough(o,2)],hough(o,3),hough(o,4),hough(o,5));
+                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(data,1));
+                for o=1:size(data,1)
+                    bwo(:,:,o) = ellipse2(size(bw),[data(o,1),data(o,2)],data(o,3),data(o,4),data(o,5));
                 end
-                bwo = max(bwo,[],3); clear o hough
+                bwo = max(bwo,[],3); clear o data
                 data{rn,11} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
+                clear bwo
+                % Run Ellipses From Triangles (EFT)
+                profile on, edges = edge(bw,'canny');
+                data = ellipsesFromTriangles(edges,ks(k));
+                stats = profile('info');
+                funct = find(cellfun(@(x)isequal(x,'ellipsesFromTriangles'),{stats.FunctionTable.FunctionName}));
+                time = stats.FunctionTable(funct).TotalTime;
+                memory = stats.FunctionTable(funct).TotalMemAllocated;
+                data{rn,12} = num2str(time); data{rn,13} = num2str(memory);
+                profile off, clear stats funct time memory edges
+                % EFT Jaccard
+                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(data,1));
+                for o=1:size(data,1)
+                    bwo(:,:,o) = ellipse2(size(bw),[data(o,1),data(o,2)],data(o,3),data(o,4),data(o,5));
+                end
+                bwo = max(bwo,[],3); clear o data
+                data{rn,14} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 clear bwo
             end
             % Append Data to File
@@ -194,9 +234,11 @@ switch en
         % Inputs
         if nargin==1; N = 1; end
         % Create File for Results
-        headers = {'N','number','POD:n','POD:time','POD:memory',...
-            'POD:Jaqqard','PODH:n','PODH:time','PODH:memory','PODH:Jaqqard',...
-            'Hough: n','Hough:time','Hough:memory','Hough:Jaqqard'};
+        headers = {'N','number',...
+            'POD:n','POD:time','POD:memory','POD:Jaccard',...
+            'PODH:n','PODH:time','PODH:memory','PODH:Jaccard',...
+            'Hough: n','Hough:time','Hough:memory','Hough:Jaccard',...
+            'EFT:n','EFT:time','EFT:memory','EFT:Jaccard'};
         headers = strjoin(headers,',');
         fid = fopen('experiment3.dat','w');
         fprintf(fid,'%s\r\n',headers);
@@ -231,7 +273,7 @@ switch en
             bw = max(bw,[],3);
             clear o major minor rot xpos ypos xposs yposs majors
             % Data
-            data = cell(N,14);
+            data = cell(N,18);
             data(:,2) = cellstr(num2str(repmat(l,N,1)));
             for rn=1:N
                 % Data
@@ -272,21 +314,39 @@ switch en
                 clear bwo
                 % Run Hough
                 profile on, edges = edge(bw,'canny');
-                hough = ellipticalHough(edges,(2*7)+1);
+                data = ellipticalHough(edges,(2*7)+1);
                 stats = profile('info');
                 funct = find(cellfun(@(x)isequal(x,'ellipticalHough'),{stats.FunctionTable.FunctionName}));
                 time = stats.FunctionTable(funct).TotalTime;
                 memory = stats.FunctionTable(funct).TotalMemAllocated;
-                data{rn,11} = num2str(size(hough,1));
+                data{rn,11} = num2str(size(data,1));
                 data{rn,12} = num2str(time); data{rn,13} = num2str(memory);
                 profile off, clear stats funct time memory edges
                 % Hough Jaccard
-                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(hough,1));
-                for o=1:size(hough,1)
-                    bwo(:,:,o) = ellipse2(size(bw),[hough(o,1),hough(o,2)],hough(o,3),hough(o,4),hough(o,5));
+                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(data,1));
+                for o=1:size(data,1)
+                    bwo(:,:,o) = ellipse2(size(bw),[data(o,1),data(o,2)],data(o,3),data(o,4),data(o,5));
                 end
-                bwo = max(bwo,[],3); clear o hough
+                bwo = max(bwo,[],3); clear o data
                 data{rn,14} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
+                clear bwo
+                % Run Ellipses From Triangles (EFT)
+                profile on, edges = edge(bw,'canny');
+                data = ellipsesFromTriangles(edges,(2*7)+1));
+                stats = profile('info');
+                funct = find(cellfun(@(x)isequal(x,'ellipsesFromTriangles'),{stats.FunctionTable.FunctionName}));
+                time = stats.FunctionTable(funct).TotalTime;
+                memory = stats.FunctionTable(funct).TotalMemAllocated;
+                data{rn,15} = num2str(size(data,1));
+                data{rn,16} = num2str(time); data{rn,17} = num2str(memory);
+                profile off, clear stats funct time memory edges
+                % EFT Jaccard
+                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(data,1));
+                for o=1:size(data,1)
+                    bwo(:,:,o) = ellipse2(size(bw),[data(o,1),data(o,2)],data(o,3),data(o,4),data(o,5));
+                end
+                bwo = max(bwo,[],3); clear o data
+                data{rn,18} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 clear bwo
             end
             % Append Data to File
@@ -301,20 +361,21 @@ switch en
 %% Experiment 4 - Clustered and Overlapping Objects
     case 4
         % Create File for Results
-        headers = {'distx','disty','POD:n','POD:Jaqqard','PODH:n','PODH:Jaqqard','Hough: n','Hough:Jaqqard'};
+        headers = {'distx','disty',...
+            'POD:n','POD:Jaccard',...
+            'PODH:n','PODH:Jaccard',...
+            'Hough:n','Hough:Jaccard',...
+            'EFT:n','EFT:Jaccard'};
         headers = strjoin(headers,',');
         fid = fopen('experiment4.dat','w');
         fprintf(fid,'%s\r\n',headers);
         fclose(fid);
-%         [L,K] = readexp4();
         distmax = 105;
         distmin = -105;
         major=round(30); minor=round(20);
         xpos = 128; ypos = 128;
         parfor l=distmin:distmax
             for k=distmin:distmax
-%                 test = sum(K(L==l)==k);
-%                 if test>0; continue; end;
                 % Create Figure
                 sepx = (major+minor) * l/100;
                 sepy = (major+minor) * k/100;
@@ -322,7 +383,7 @@ switch en
                 idx2 = ellipse2(256,[xpos+sepx,ypos+sepy],major,minor,90);
                 bw = max(idx1,idx2);
                 % Data
-                data = cell(1,8);
+                data = cell(1,10);
                 data{1} = num2str(l);
                 data{2} = num2str(k);
                 % Data
@@ -348,15 +409,26 @@ switch en
                 data{6} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 % Run Hough
                 edges = edge(bw,'canny');
-                hough = ellipticalHough(edges,[10,40]);
-                data{7}= num2str(size(hough,1));
+                data = ellipticalHough(edges,[10,40]);
+                data{7}= num2str(size(data,1));
                 % Hough Jaccard
-                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(hough,1));
-                for o=1:size(hough,1)
-                    bwo(:,:,o) = ellipse2(size(bw),[hough(o,1),hough(o,2)],hough(o,3),hough(o,4),hough(o,5));
+                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(data,1));
+                for o=1:size(data,1)
+                    bwo(:,:,o) = ellipse2(size(bw),[data(o,1),data(o,2)],data(o,3),data(o,4),data(o,5));
                 end
                 bwo = max(bwo,[],3);
                 data{8} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
+                % Run Ellipses From Triangles (EFT)
+                edges = edge(bw,'canny');
+                data = ellipsesFromTriangles(edges,[10,40]);
+                data{9}= num2str(size(data,1));
+                % EFT Jaccard
+                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(data,1));
+                for o=1:size(data,1)
+                    bwo(:,:,o) = ellipse2(size(bw),[data(o,1),data(o,2)],data(o,3),data(o,4),data(o,5));
+                end
+                bwo = max(bwo,[],3);
+                data{10} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 % Append Data to File
                 fid = fopen('experiment4.dat','a+');
                 data = strjoin(data,',');
@@ -367,12 +439,16 @@ switch en
 %% Experiment 5 - Accuracy over lengths and rotations
     case 5
         % Data File Set-Up
-        headers = {'X','Y','Major','Minor','Rotation','POD:n',...
-            'POD:Jaqqard','PODH:n','PODH:Jaqqard','Hough:n','Hough:Jaqqard'};
+        headers = {'X','Y','Major','Minor','Rotation',...
+            'POD:n','POD:Jaccard',...
+            'PODH:n','PODH:Jaccard',...
+            'Hough:n','Hough:Jaccard',...
+            'EFT:n','EFT:Jaccard'};
         headers = strjoin(headers,','); fid = fopen('experiment5.dat','w');
         fprintf(fid,'%s\r\n',headers); fclose(fid);
+        major = 30;%Only use one major axis value for accuracy maps
         parfor rot=0:179
-            for major=3:30
+            %for major=3:30
                 for minor=3:major
                     % Data Set-Up
                     data = cell(1,13);
@@ -404,19 +480,19 @@ switch en
                     bwo = max(bwo,[],3);
                     data{9} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                     % Run Hough
-                    edges = edge(bw,'canny'); hough = ellipticalHough(edges);
-                    l = size(hough,1); data{10} = num2str(l);
+                    edges = edge(bw,'canny'); data = ellipticalHough(edges);
+                    l = size(data,1); data{10} = num2str(l);
                     % Hough Jaccard
                     bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,l);
                     for o=1:l
-                        bwo(:,:,o) = ellipse2(size(bw),[hough(o,1),hough(o,2)],hough(o,3),hough(o,4),hough(o,5));
+                        bwo(:,:,o) = ellipse2(size(bw),[data(o,1),data(o,2)],data(o,3),data(o,4),data(o,5));
                     end
                     bwo = max(bwo,[],3);
                     data{11} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
-                    % Run EFT
+                    % Run Ellipses From Triangles (EFT)
                     try
-                        edges = edge(bw,'canny'); parameters = ellipsesFromTriangles(edges);
-                        l = size(parameters,1);
+                        data = ellipsesFromTriangles(edges);
+                        l = size(data,1);
                     catch
                         l=0;
                     end
@@ -425,7 +501,7 @@ switch en
                         % EFT Jaccard
                         bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,l);
                         for o=1:l
-                            bwo(:,:,o) = ellipse2(size(bw),[parameters(o,1),parameters(o,2)],parameters(o,3),parameters(o,4),parameters(o,5));
+                            bwo(:,:,o) = ellipse2(size(bw),[data(o,1),data(o,2)],data(o,3),data(o,4),data(o,5));
                         end
                         bwo = max(bwo,[],3);
                         data{13} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
@@ -438,14 +514,18 @@ switch en
                     fprintf(fid,'%s\r\n',data);
                     fclose(fid);
                 end
-            end
+            %end
         end
 %% Experiment 6 - Change SNR (binary)
     case 6
         % Inputs
         if nargin==1; N = 1; end
         % Create File for Results
-        headers = {'N','SNR-Theoretical','SNR-Real','POD:Jaqqard','POD:Time','PODH:Jaqqard','PODH:Time','Hough:Jaqqard','Hough:Time'};
+        headers = {'N','SNR-Theoretical','SNR-Real',...
+            'POD:Jaccard','POD:Time',...
+            'PODH:Jaccard','PODH:Time',...
+            'Hough:Jaccard','Hough:Time',...
+            'EFT:Jaccard','EFT:Time'};
         headers = strjoin(headers,',');
         fid = fopen('experiment6.dat','w');
         fprintf(fid,'%s\r\n',headers);
@@ -456,7 +536,7 @@ switch en
         rot=randi(180,1); m=128; k=35;
         for snr=34:-1:0
             % Data
-            data = cell(N,9);
+            data = cell(N,11);
             data(:,2) = cellstr(num2str(repmat(snr,N,1)));
             % Create Image
             bw = ellipse2(m,[ceil((m+1)/2),ceil((m+1)/2)],major,minor,rot);
@@ -495,15 +575,28 @@ switch en
                 data{rn,6} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 % Run Hough
                 tic; edges = edge(bw1,'canny');
-                hough = ellipticalHough (edges,[5,k]);
+                data = ellipticalHough (edges,[5,k]);
                 data{rn,9} = num2str(toc);
+                clear edges
                 % Hough Jaccard
-                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(hough,1));
-                for o=1:size(hough,1)
-                    bwo(:,:,o) = ellipse2(size(bw),[hough(o,1),hough(o,2)],hough(o,3),hough(o,4),hough(o,5));
+                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(data,1));
+                for o=1:size(data,1)
+                    bwo(:,:,o) = ellipse2(size(bw),[data(o,1),data(o,2)],data(o,3),data(o,4),data(o,5));
                 end
                 bwo = max(bwo,[],3);
                 data{rn,8} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
+                % Run Ellipses From Triangles (EFT)
+                tic; edges = edge(bw1,'canny');
+                data = ellipsesFromTriangles(edges);
+                data{11} = num2str(toc);
+                clear edges
+                % EFT Jaccard
+                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,l);
+                for o=1:size(data,1)
+                    bwo(:,:,o) = ellipse2(size(bw),[data(o,1),data(o,2)],data(o,3),data(o,4),data(o,5));
+                end
+                bwo = max(bwo,[],3);
+                data{10} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
             end
             % Append Data to File
             fid = fopen('experiment6.dat','a+');
