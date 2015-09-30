@@ -22,7 +22,7 @@ function PODExperiments(en,N)
 %              A-New-Method-for-Ellipse-Detection-2015/">The GitHub
 %              Repository</a>
 %
-% See also POD2, PODH, ELLIPTICALHOUGH, ACCURACYMAPSCRIPTS
+% See also POD2, PODH, ELLIPTICALHOUGH, ELLIPSESFROMTRIANGLES, ACCURACYMAPSCRIPTS
 
 %% Set-Up
 profile -memory
@@ -375,7 +375,7 @@ switch en
             for major=3:30
                 for minor=3:major
                     % Data Set-Up
-                    data = cell(1,11);
+                    data = cell(1,13);
                     data{1} = num2str(ceil((64+1)/2));
                     data{2} = num2str(ceil((64+1)/2));
                     data{3} = num2str(major);
@@ -413,6 +413,25 @@ switch en
                     end
                     bwo = max(bwo,[],3);
                     data{11} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
+                    % Run EFT
+                    try
+                        edges = edge(bw,'canny'); parameters = ellipsesFromTriangles(edges);
+                        l = size(parameters,1);
+                    catch
+                        l=0;
+                    end
+                    data{12} = num2str(l);
+                    if l~=0
+                        % EFT Jaccard
+                        bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,l);
+                        for o=1:l
+                            bwo(:,:,o) = ellipse2(size(bw),[parameters(o,1),parameters(o,2)],parameters(o,3),parameters(o,4),parameters(o,5));
+                        end
+                        bwo = max(bwo,[],3);
+                        data{13} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
+                    else
+                        data{13} = num2str(1);
+                    end
                     % Append Data to File
                     fid = fopen('experiment5.dat','a+');
                     data = strjoin(data,',');

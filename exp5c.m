@@ -46,8 +46,13 @@ parfor rot=0:179
 %             bwo = max(bwo,[],3);
 %             data{11} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
             % Run EFT
-            edges = edge(bw,'canny'); parameters = ellipsesFromTriangles(edges);
-            l = size(parameters,1); data{6} = num2str(l);
+            try
+                edges = edge(bw,'canny'); parameters = ellipsesFromTriangles(edges);
+                l = size(parameters,1);
+            catch
+                l=0;
+            end
+            data{6} = num2str(l);
             if l~=0
                 % EFT Jaccard
                 bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,l);
