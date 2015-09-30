@@ -40,7 +40,7 @@ function data = pod2 (bw,maxLength,resLength,resAngular)
 % See also PODH, ELLIPTICALHOUGH, PODEXPERIMENTS
 
 %% Inputs
-if nargin<4; resAngular = 45; end
+if nargin<4; resAngular = 15; end
 if nargin<3; resLength = 1; end
 if nargin<2; maxLength = min(size(bw)); end
 if length(maxLength)>1
@@ -49,7 +49,7 @@ if length(maxLength)>1
 else
     minLength = 1;
 end
-R=1;
+
 %% Set Up
 [m,n] = size(bw);
 lStepNumber = ceil((maxLength-minLength+1)/resLength);

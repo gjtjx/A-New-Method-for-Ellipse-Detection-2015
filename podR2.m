@@ -76,6 +76,7 @@ for lStep = 1:length(lengthSteps)
         clear r a p1 p2 pmin pmax
         %Erosion
         granulometricSignals(:,:,lStep,aStep) = randerode(bw,se,randRatio);
+        subplot(121), imshow(randerode(bw,se,randRatio)), subplot(122), imshow(imerode(bw,se)); drawnow
     end
 end
 clear lStep aStep lStepNumber aStepNumber se

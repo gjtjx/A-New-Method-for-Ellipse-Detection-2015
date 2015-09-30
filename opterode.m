@@ -22,9 +22,11 @@ function B = opterode(A,se)
 %              A-New-Method-for-Ellipse-Detection-2015/">The GitHub
 %              Repository</a>
 %% Pad with Zeros (c.f. MATLAB's default of Inf)
+se=logical(se);
+
 [m,n] = size(A);
 [sm,sn] = size(se);
-B = zeros(m+(2*sm),n+2*sn);
+B = zeros(m+(2*sm),n+(2*sn));
 B(sm+(1:m),sn+(1:n)) = A;
 
 %% Apply Erosion
