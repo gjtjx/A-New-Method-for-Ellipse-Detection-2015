@@ -5,6 +5,5 @@
 %   ellipse2           - ellipse2, a function to produce a binary image containing a single ellipse
 %   ellipticalHough    - ellipticalHough, Hough transform-based ellipse detection method
 %   opterode           - Modified Version of MATLAB's built-in imerode
-%   pod2               - pod2, Parametrisable Object Detection in 2D (developed for ellipses)
-%   PODExperiments     - Experiments for 'A New Method for Ellipse Detection' by Nelson et al. (2015)
-%   podh               - podh2, Parametrisable Object Detection in 2D with Hilbert-powered step detection (developed for ellipses)
+%   HEDARExperiments     - Experiments for 'A New Method for Ellipse Detection' by Nelson et al. (2015)
+%   hedar               - hedar, Hilbert-Edge Detection And Ranging developed for ellipses

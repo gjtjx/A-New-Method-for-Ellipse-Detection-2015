@@ -7,13 +7,13 @@
 % for 'A New Method for Ellipse Detection' by Nelson et al. (2015).
 %
 % Copyright 2015 Carl J. Nelson, Durham University, UK
-% 
+%
 % License   See included <a href="./LICENSE/">file</a> or visit
 %           <a href="https://github.com/ChasNelson1990/...
 %              A-New-Method-for-Ellipse-Detection-2015/">The GitHub
 %              Repository</a>
 %
-% See also PODEXPERIMENTS
+% See also HEDAREXPERIMENTS
 
 %% Create Uncertainty Map from Experiment 5:- Accuracy over m, M and theta
 % Load Data
