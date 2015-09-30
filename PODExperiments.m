@@ -332,7 +332,7 @@ switch en
                 clear bwo
                 % Run Ellipses From Triangles (EFT)
                 profile on, edges = edge(bw,'canny');
-                data = ellipsesFromTriangles(edges,(2*7)+1));
+                data = ellipsesFromTriangles(edges,(2*7)+1);
                 stats = profile('info');
                 funct = find(cellfun(@(x)isequal(x,'ellipsesFromTriangles'),{stats.FunctionTable.FunctionName}));
                 time = stats.FunctionTable(funct).TotalTime;

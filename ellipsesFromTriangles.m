@@ -1,6 +1,6 @@
 function data = ellipsesFromTriangles(im,maxLength,resAngular,estNumber)
 % ellipsesFromTriangles, ellipse finding algorithm that uses point and
-% tangent information. This code is a function wrapper for that found 
+% tangent information. This code is a function wrapper for that found
 % https://bitbucket.org/cicconet/triangles_matlab. This wrapper uses a
 % set of default settings for running the code.
 %
@@ -34,24 +34,24 @@ function data = ellipsesFromTriangles(im,maxLength,resAngular,estNumber)
 %           the center of the ellipse, its major and minor axes and
 %           orientation of the major axis.
 %
-% Based on  "Ellipse from Triangles" (Cicconet, M., Gunsalus, K., Geiger, 
+% Based on  "Ellipse from Triangles" (Cicconet, M., Gunsalus, K., Geiger,
 %           D.and Werman, M.; 2014).
-% 
+%
 % Examples:
-% data = ellipsesFromTriangles(im,[10,20],45,10), detects up to ten 
+% data = ellipsesFromTriangles(im,[10,20],45,10), detects up to ten
 % ellipses with half-axes of lengths between 10 and 20 pixels at an angular
 % resolution of 45 degrees.
-%    
+%
 % License   Redistribution and use in source and binary forms, with or
-%           without modification, are permitted provided that the 
+%           without modification, are permitted provided that the
 %           following conditions are met:
 %           * Redistributions of source code must retain the above copyright
 %               notice, this list of conditions and the following disclaimer.
-%           * Redistributions in binary form must reproduce the above 
-%               copyright notice, this list of conditions and the 
-%               following disclaimer in the documentation and/or other 
+%           * Redistributions in binary form must reproduce the above
+%               copyright notice, this list of conditions and the
+%               following disclaimer in the documentation and/or other
 %               materials provided with the distribution
-%       
+%
 %            THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
 %            IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
 %            THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
@@ -76,15 +76,14 @@ else
 end
 
 %% Recursion If No Number Estimation
-if nargin==1
+if nargin<4
     estNumber=1;
-end
-%     data = ellipsesFromTriangles(im,maxLength,resAngular,estNumber);
-%     while size(data,1)==estNumber
-%         data = ellipsesFromTriangles(im,maxLength,resAngular,estNumber);
-%         estNumber = 2*estNumber;
-%     end
-% else
+    data = ellipsesFromTriangles(im,maxLength,resAngular,estNumber);
+    while size(data,1)==estNumber
+        data = ellipsesFromTriangles(im,maxLength,resAngular,estNumber);
+        estNumber = 2*estNumber;
+    end
+else
     im = mat2gray(im); % input should be double and in the range [0,1]
 
     %% Points, Tangents, and Magnitudes
@@ -120,5 +119,5 @@ end
         data(:,3:4) = 2*data(:,3:4);
         data(:,5) = rad2deg(-(data(:,5)+pi));
     end
-%end
+end
 end
