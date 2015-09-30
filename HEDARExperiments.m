@@ -24,8 +24,6 @@ function HEDARExperiments(en,N)
 %
 % See also HEDAR, ELLIPTICALHOUGH, ELLIPSESFROMTRIANGLES, ACCURACYMAPSCRIPTS
 
-%% Set-Up
-profile -memory
 switch en
 %% Experiment 1 - Change of image size, set kernel size range (binary image)
     case 1
@@ -33,9 +31,9 @@ switch en
         if nargin==1; disp('Running only once'); N = 1; end;
         % Create File for Results
         headers = {'N','m',...
-            'HEDAR:time','HEDAR:memory','HEDAR:Jaccard',...
-            'Hough:time','Hough:memory','Hough:Jaccard',...
-            'EFT:time','EFT:memory','EFT:Jaccard'};
+            'HEDAR:time','HEDAR:Jaccard',...
+            'Hough:time','Hough:Jaccard',...
+            'EFT:time','EFT:Jaccard'};
         headers = strjoin(headers,',');
         fid = fopen('experiment1.dat','w');
         fprintf(fid,'%s\r\n',headers); fclose(fid);
@@ -52,54 +50,39 @@ switch en
                 % Data
                 data{rn,1} = num2str(rn);
                 % Run HEDAR
-                profile on, results = hedar (bw,(2*15)+1);
-                stats = profile('info');
-                funct = find(cellfun(@(x)isequal(x,'hedar'),{stats.FunctionTable.FunctionName}));
-                time = stats.FunctionTable(funct).TotalTime;
-                memory = stats.FunctionTable(funct).TotalMemAllocated;
-                data{rn,3} = num2str(time); data{rn,4} = num2str(memory);
-                profile off, clear stats funct time memory
+                tic, results = hedar (bw,(2*15)+1);
+                data{rn,3} = num2str(toc);
                 % HEDAR Jaccard
                 bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(results,1));
                 for o=1:size(results,1)
                     bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
                 end
                 bwo = max(bwo,[],3); clear o results
-                data{rn,5} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
+                data{rn,4} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 clear bwo
                 % Run Hough
-                profile on, edges = edge(bw,'canny');
+                tic, edges = edge(bw,'canny');
                 results = ellipticalHough(edges,(2*15)+1);
-                stats = profile('info');
-                funct = find(cellfun(@(x)isequal(x,'ellipticalHough'),{stats.FunctionTable.FunctionName}));
-                time = stats.FunctionTable(funct).TotalTime;
-                memory = stats.FunctionTable(funct).TotalMemAllocated;
-                data{rn,6} = num2str(time); data{rn,7} = num2str(memory);
-                profile off, clear stats funct time memory edges
+                data{rn,5} = num2str(toc);
                 % Hough Jaccard
                 bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(results,1));
                 for o=1:size(results,1)
                     bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
                 end
                 bwo = max(bwo,[],3); clear o results
-                data{rn,8} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
+                data{rn,6} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 clear bwo
                 % Run Ellipses From Triangles (EFT)
-                profile on, edges = edge(bw,'canny');
+                tic, edges = edge(bw,'canny');
                 results = ellipsesFromTriangles(edges,(2*15)+1);
-                stats = profile('info');
-                funct = find(cellfun(@(x)isequal(x,'ellipsesFromTriangles'),{stats.FunctionTable.FunctionName}));
-                time = stats.FunctionTable(funct).TotalTime;
-                memory = stats.FunctionTable(funct).TotalMemAllocated;
-                data{rn,9} = num2str(time); data{rn,10} = num2str(memory);
-                profile off, clear stats funct time memory edges
+                data{rn,7} = num2str(toc);
                 % EFT Jaccard
                 bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(results,1));
                 for o=1:size(results,1)
                     bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
                 end
                 bwo = max(bwo,[],3); clear o results
-                data{rn,11} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
+                data{rn,8} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 clear bwo
             end
             % Append Data to File
@@ -116,9 +99,9 @@ switch en
         if nargin==1; disp('Running only once'); N = 1; end;
         % Create File for Results
         headers = {'N','k',...
-            'HEDAR:time','HEDAR:memory','HEDAR:Jaccard',...
-            'Hough:time','Hough:memory','Hough:Jaccard',...
-            'EFT:time','EFT:memory','EFT:Jaccard'};
+            'HEDAR:time','HEDAR:Jaccard',...
+            'Hough:time','Hough:Jaccard',...
+            'EFT:time','EFT:Jaccard'};
         headers = strjoin(headers,',');
         fid = fopen('experiment2.dat','w');
         fprintf(fid,'%s\r\n',headers); fclose(fid);
@@ -131,60 +114,45 @@ switch en
             % Create Image
             bw = ellipse2(256,[ceil((256+1)/2),ceil((256+1)/2)],major,minor,rot);
             % Data
-            data = cell(N,11);
+            data = cell(N,8);
             data(:,2) = cellstr(num2str(repmat(ks(k),N,1)));
             for rn=1:N
                 % Data
                 data{rn,1} = num2str(rn);
                 % Run HEDAR
-                profile on, results = hedar (bw,ks(k));
-                stats = profile('info');
-                funct = find(cellfun(@(x)isequal(x,'hedar'),{stats.FunctionTable.FunctionName}));
-                time = stats.FunctionTable(funct).TotalTime;
-                memory = stats.FunctionTable(funct).TotalMemAllocated;
-                data{rn,3} = num2str(time); data{rn,4} = num2str(memory);
-                profile off, clear stats funct time memory
+                tic, results = hedar (bw,ks(k));
+                data{rn,3} = num2str(toc);
                 % HEDAR Jaccard
                 bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(results,1));
                 for o=1:size(results,1)
                     bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
                 end
                 bwo = max(bwo,[],3); clear o results
-                data{rn,5} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
+                data{rn,4} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 clear bwo
                 % Run Hough
-                profile on, edges = edge(bw,'canny');
+                tic, edges = edge(bw,'canny');
                 results = ellipticalHough(edges,ks(k));
-                stats = profile('info');
-                funct = find(cellfun(@(x)isequal(x,'ellipticalHough'),{stats.FunctionTable.FunctionName}));
-                time = stats.FunctionTable(funct).TotalTime;
-                memory = stats.FunctionTable(funct).TotalMemAllocated;
-                data{rn,6} = num2str(time); data{rn,7} = num2str(memory);
-                profile off, clear stats funct time memory edges
+                data{rn,5} = num2str(toc);
                 % Hough Jaccard
                 bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(results,1));
                 for o=1:size(results,1)
                     bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
                 end
                 bwo = max(bwo,[],3); clear o results
-                data{rn,8} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
+                data{rn,6} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 clear bwo
                 % Run Ellipses From Triangles (EFT)
-                profile on, edges = edge(bw,'canny');
+                tic, edges = edge(bw,'canny');
                 results = ellipsesFromTriangles(edges,ks(k));
-                stats = profile('info');
-                funct = find(cellfun(@(x)isequal(x,'ellipsesFromTriangles'),{stats.FunctionTable.FunctionName}));
-                time = stats.FunctionTable(funct).TotalTime;
-                memory = stats.FunctionTable(funct).TotalMemAllocated;
-                data{rn,9} = num2str(time); data{rn,10} = num2str(memory);
-                profile off, clear stats funct time memory edges
+                data{rn,7} = num2str(time);
                 % EFT Jaccard
                 bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(results,1));
                 for o=1:size(results,1)
                     bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
                 end
                 bwo = max(bwo,[],3); clear o results
-                data{rn,11} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
+                data{rn,8} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 clear bwo
             end
             % Append Data to File
@@ -201,9 +169,9 @@ switch en
         if nargin==1; disp('Running only once'); N = 1; end;
         % Create File for Results
         headers = {'N','number',...
-            'HEDAR:n','HEDAR:time','HEDAR:memory','HEDAR:Jaccard',...
-            'Hough: n','Hough:time','Hough:memory','Hough:Jaccard',...
-            'EFT:n','EFT:time','EFT:memory','EFT:Jaccard'};
+            'HEDAR:n','HEDAR:time','HEDAR:Jaccard',...
+            'Hough: n','Hough:time','Hough:Jaccard',...
+            'EFT:n','EFT:time','EFT:Jaccard'};
         headers = strjoin(headers,',');
         fid = fopen('experiment3.dat','w');
         fprintf(fid,'%s\r\n',headers);
@@ -238,20 +206,16 @@ switch en
             bw = max(bw,[],3);
             clear o major minor rot xpos ypos xposs yposs majors
             % Data
-            data = cell(N,14);
+            data = cell(N,11);
             data(:,2) = cellstr(num2str(repmat(l,N,1)));
             for rn=1:N
                 % Data
                 data{rn,1} = num2str(rn);
                 % Run HEDAR
-                profile on, results = hedar (bw,(2*7)+1);
-                stats = profile('info');
-                funct = find(cellfun(@(x)isequal(x,'hedar'),{stats.FunctionTable.FunctionName}));
-                time = stats.FunctionTable(funct).TotalTime;
-                memory = stats.FunctionTable(funct).TotalMemAllocated;
+                tic, results = hedar (bw,(2*7)+1);
                 data{rn,3} = num2str(size(results,1));
-                data{rn,4} = num2str(time); data{rn,5} = num2str(memory);
-                profile off, clear stats funct time memory
+                data{rn,4} = num2str(toc); data{rn,5} = num2str(memory);
+                profile off, clear stats funct toc memory
                 % HEDAR Jaccard
                 bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(results,1));
                 for o=1:size(results,1)
@@ -261,15 +225,11 @@ switch en
                 data{rn,6} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 clear bwo
                 % Run Hough
-                profile on, edges = edge(bw,'canny');
+                tic, edges = edge(bw,'canny');
                 results = ellipticalHough(edges,(2*7)+1);
-                stats = profile('info');
-                funct = find(cellfun(@(x)isequal(x,'ellipticalHough'),{stats.FunctionTable.FunctionName}));
-                time = stats.FunctionTable(funct).TotalTime;
-                memory = stats.FunctionTable(funct).TotalMemAllocated;
                 data{rn,7} = num2str(size(results,1));
-                data{rn,8} = num2str(time); data{rn,9} = num2str(memory);
-                profile off, clear stats funct time memory edges
+                data{rn,8} = num2str(toc); data{rn,9} = num2str(memory);
+                profile off, clear stats funct toc memory edges
                 % Hough Jaccard
                 bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(results,1));
                 for o=1:size(results,1)
@@ -279,15 +239,11 @@ switch en
                 data{rn,10} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 clear bwo
                 % Run Ellipses From Triangles (EFT)
-                profile on, edges = edge(bw,'canny');
+                tic, edges = edge(bw,'canny');
                 results = ellipsesFromTriangles(edges,(2*7)+1);
-                stats = profile('info');
-                funct = find(cellfun(@(x)isequal(x,'ellipsesFromTriangles'),{stats.FunctionTable.FunctionName}));
-                time = stats.FunctionTable(funct).TotalTime;
-                memory = stats.FunctionTable(funct).TotalMemAllocated;
                 data{rn,11} = num2str(size(results,1));
-                data{rn,12} = num2str(time); data{rn,13} = num2str(memory);
-                profile off, clear stats funct time memory edges
+                data{rn,12} = num2str(toc); data{rn,13} = num2str(memory);
+                profile off, clear stats funct toc memory edges
                 % EFT Jaccard
                 bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(results,1));
                 for o=1:size(results,1)
