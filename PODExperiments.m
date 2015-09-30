@@ -53,7 +53,7 @@ switch en
                 % Data
                 data{rn,1} = num2str(rn);
                 % Run POD
-                profile on, pod = pod2 (bw,(2*15)+1);
+                profile on, results = pod2 (bw,(2*15)+1);
                 stats = profile('info');
                 funct = find(cellfun(@(x)isequal(x,'pod2'),{stats.FunctionTable.FunctionName}));
                 time = stats.FunctionTable(funct).TotalTime;
@@ -61,15 +61,15 @@ switch en
                 data{rn,3} = num2str(time); data{rn,4} = num2str(memory);
                 profile off, clear stats funct time memory
                 % POD Jaccard
-                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(pod,1));
-                for o=1:size(pod,1)
-                    bwo(:,:,o) = ellipse2(size(bw),[pod(o,1),pod(o,2)],pod(o,3),pod(o,4),pod(o,5));
+                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(results,1));
+                for o=1:size(results,1)
+                    bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
                 end
-                bwo = max(bwo,[],3); clear o pod;
+                bwo = max(bwo,[],3); clear o results;
                 data{rn,5} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 clear bwo
                 % Run PODH
-                profile on, pod = podh (bw,(2*15)+1);
+                profile on, results = podh (bw,(2*15)+1);
                 stats = profile('info');
                 funct = find(cellfun(@(x)isequal(x,'podh'),{stats.FunctionTable.FunctionName}));
                 time = stats.FunctionTable(funct).TotalTime;
@@ -77,16 +77,16 @@ switch en
                 data{rn,6} = num2str(time); data{rn,7} = num2str(memory);
                 profile off, clear stats funct time memory
                 % PODH Jaccard
-                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(pod,1));
-                for o=1:size(pod,1)
-                    bwo(:,:,o) = ellipse2(size(bw),[pod(o,1),pod(o,2)],pod(o,3),pod(o,4),pod(o,5));
+                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(results,1));
+                for o=1:size(results,1)
+                    bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
                 end
-                bwo = max(bwo,[],3); clear o pod
+                bwo = max(bwo,[],3); clear o results
                 data{rn,8} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 clear bwo
                 % Run Hough
                 profile on, edges = edge(bw,'canny');
-                data = ellipticalHough(edges,(2*15)+1);
+                results = ellipticalHough(edges,(2*15)+1);
                 stats = profile('info');
                 funct = find(cellfun(@(x)isequal(x,'ellipticalHough'),{stats.FunctionTable.FunctionName}));
                 time = stats.FunctionTable(funct).TotalTime;
@@ -94,16 +94,16 @@ switch en
                 data{rn,9} = num2str(time); data{rn,10} = num2str(memory);
                 profile off, clear stats funct time memory edges
                 % Hough Jaccard
-                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(data,1));
-                for o=1:size(data,1)
-                    bwo(:,:,o) = ellipse2(size(bw),[data(o,1),data(o,2)],data(o,3),data(o,4),data(o,5));
+                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(results,1));
+                for o=1:size(results,1)
+                    bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
                 end
-                bwo = max(bwo,[],3); clear o data
+                bwo = max(bwo,[],3); clear o results
                 data{rn,11} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 clear bwo
                 % Run Ellipses From Triangles (EFT)
                 profile on, edges = edge(bw,'canny');
-                data = ellipsesFromTriangles(edges,(2*15)+1);
+                results = ellipsesFromTriangles(edges,(2*15)+1);
                 stats = profile('info');
                 funct = find(cellfun(@(x)isequal(x,'ellipsesFromTriangles'),{stats.FunctionTable.FunctionName}));
                 time = stats.FunctionTable(funct).TotalTime;
@@ -111,11 +111,11 @@ switch en
                 data{rn,12} = num2str(time); data{rn,13} = num2str(memory);
                 profile off, clear stats funct time memory edges
                 % EFT Jaccard
-                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(data,1));
-                for o=1:size(data,1)
-                    bwo(:,:,o) = ellipse2(size(bw),[data(o,1),data(o,2)],data(o,3),data(o,4),data(o,5));
+                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(results,1));
+                for o=1:size(results,1)
+                    bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
                 end
-                bwo = max(bwo,[],3); clear o data
+                bwo = max(bwo,[],3); clear o results
                 data{rn,14} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 clear bwo
             end
@@ -155,7 +155,7 @@ switch en
                 % Data
                 data{rn,1} = num2str(rn);
                 % Run POD
-                profile on, pod = pod2 (bw,ks(k));
+                profile on, results = pod2 (bw,ks(k));
                 stats = profile('info');
                 funct = find(cellfun(@(x)isequal(x,'pod2'),{stats.FunctionTable.FunctionName}));
                 time = stats.FunctionTable(funct).TotalTime;
@@ -163,15 +163,15 @@ switch en
                 data{rn,3} = num2str(time); data{rn,4} = num2str(memory);
                 profile off, clear stats funct time memory
                 % POD Jaccard
-                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(pod,1));
-                for o=1:size(pod,1)
-                    bwo(:,:,o) = ellipse2(size(bw),[pod(o,1),pod(o,2)],pod(o,3),pod(o,4),pod(o,5));
+                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(results,1));
+                for o=1:size(results,1)
+                    bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
                 end
-                bwo = max(bwo,[],3); clear o pod;
+                bwo = max(bwo,[],3); clear o results;
                 data{rn,5} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 clear bwo
                 % Run PODH
-                profile on, pod = podh (bw,ks(k));
+                profile on, results = podh (bw,ks(k));
                 stats = profile('info');
                 funct = find(cellfun(@(x)isequal(x,'podh'),{stats.FunctionTable.FunctionName}));
                 time = stats.FunctionTable(funct).TotalTime;
@@ -179,16 +179,16 @@ switch en
                 data{rn,6} = num2str(time); data{rn,7} = num2str(memory);
                 profile off, clear stats funct time memory
                 % PODH Jaccard
-                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(pod,1));
-                for o=1:size(pod,1)
-                    bwo(:,:,o) = ellipse2(size(bw),[pod(o,1),pod(o,2)],pod(o,3),pod(o,4),pod(o,5));
+                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(results,1));
+                for o=1:size(results,1)
+                    bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
                 end
-                bwo = max(bwo,[],3); clear o pod
+                bwo = max(bwo,[],3); clear o results
                 data{rn,8} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 clear bwo
                 % Run Hough
                 profile on, edges = edge(bw,'canny');
-                data = ellipticalHough(edges,ks(k));
+                results = ellipticalHough(edges,ks(k));
                 stats = profile('info');
                 funct = find(cellfun(@(x)isequal(x,'ellipticalHough'),{stats.FunctionTable.FunctionName}));
                 time = stats.FunctionTable(funct).TotalTime;
@@ -196,16 +196,16 @@ switch en
                 data{rn,9} = num2str(time); data{rn,10} = num2str(memory);
                 profile off, clear stats funct time memory edges
                 % Hough Jaccard
-                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(data,1));
-                for o=1:size(data,1)
-                    bwo(:,:,o) = ellipse2(size(bw),[data(o,1),data(o,2)],data(o,3),data(o,4),data(o,5));
+                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(results,1));
+                for o=1:size(results,1)
+                    bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
                 end
-                bwo = max(bwo,[],3); clear o data
+                bwo = max(bwo,[],3); clear o results
                 data{rn,11} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 clear bwo
                 % Run Ellipses From Triangles (EFT)
                 profile on, edges = edge(bw,'canny');
-                data = ellipsesFromTriangles(edges,ks(k));
+                results = ellipsesFromTriangles(edges,ks(k));
                 stats = profile('info');
                 funct = find(cellfun(@(x)isequal(x,'ellipsesFromTriangles'),{stats.FunctionTable.FunctionName}));
                 time = stats.FunctionTable(funct).TotalTime;
@@ -213,11 +213,11 @@ switch en
                 data{rn,12} = num2str(time); data{rn,13} = num2str(memory);
                 profile off, clear stats funct time memory edges
                 % EFT Jaccard
-                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(data,1));
-                for o=1:size(data,1)
-                    bwo(:,:,o) = ellipse2(size(bw),[data(o,1),data(o,2)],data(o,3),data(o,4),data(o,5));
+                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(results,1));
+                for o=1:size(results,1)
+                    bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
                 end
-                bwo = max(bwo,[],3); clear o data
+                bwo = max(bwo,[],3); clear o results
                 data{rn,14} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 clear bwo
             end
@@ -279,73 +279,73 @@ switch en
                 % Data
                 data{rn,1} = num2str(rn);
                 % Run POD
-                profile on, pod = pod2 (bw,(2*7)+1);
+                profile on, results = pod2 (bw,(2*7)+1);
                 stats = profile('info');
                 funct = find(cellfun(@(x)isequal(x,'pod2'),{stats.FunctionTable.FunctionName}));
                 time = stats.FunctionTable(funct).TotalTime;
                 memory = stats.FunctionTable(funct).TotalMemAllocated;
-                data{rn,3} = num2str(size(pod,1));
+                data{rn,3} = num2str(size(results,1));
                 data{rn,4} = num2str(time); data{rn,5} = num2str(memory);
                 profile off, clear stats funct time memory
                 % POD Jaccard
-                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(pod,1));
-                for o=1:size(pod,1)
-                    bwo(:,:,o) = ellipse2(size(bw),[pod(o,1),pod(o,2)],pod(o,3),pod(o,4),pod(o,5));
+                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(results,1));
+                for o=1:size(results,1)
+                    bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
                 end
-                bwo = max(bwo,[],3); clear o pod;
+                bwo = max(bwo,[],3); clear o results;
                 data{rn,6} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 clear bwo
                 % Run PODH
-                profile on, pod = podh (bw,(2*7)+1);
+                profile on, results = podh (bw,(2*7)+1);
                 stats = profile('info');
                 funct = find(cellfun(@(x)isequal(x,'podh'),{stats.FunctionTable.FunctionName}));
                 time = stats.FunctionTable(funct).TotalTime;
                 memory = stats.FunctionTable(funct).TotalMemAllocated;
-                data{rn,7} = num2str(size(pod,1));
+                data{rn,7} = num2str(size(results,1));
                 data{rn,8} = num2str(time); data{rn,9} = num2str(memory);
                 profile off, clear stats funct time memory
                 % PODH Jaccard
-                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(pod,1));
-                for o=1:size(pod,1)
-                    bwo(:,:,o) = ellipse2(size(bw),[pod(o,1),pod(o,2)],pod(o,3),pod(o,4),pod(o,5));
+                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(results,1));
+                for o=1:size(results,1)
+                    bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
                 end
-                bwo = max(bwo,[],3); clear o pod
+                bwo = max(bwo,[],3); clear o results
                 data{rn,10} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 clear bwo
                 % Run Hough
                 profile on, edges = edge(bw,'canny');
-                data = ellipticalHough(edges,(2*7)+1);
+                results = ellipticalHough(edges,(2*7)+1);
                 stats = profile('info');
                 funct = find(cellfun(@(x)isequal(x,'ellipticalHough'),{stats.FunctionTable.FunctionName}));
                 time = stats.FunctionTable(funct).TotalTime;
                 memory = stats.FunctionTable(funct).TotalMemAllocated;
-                data{rn,11} = num2str(size(data,1));
+                data{rn,11} = num2str(size(results,1));
                 data{rn,12} = num2str(time); data{rn,13} = num2str(memory);
                 profile off, clear stats funct time memory edges
                 % Hough Jaccard
-                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(data,1));
-                for o=1:size(data,1)
-                    bwo(:,:,o) = ellipse2(size(bw),[data(o,1),data(o,2)],data(o,3),data(o,4),data(o,5));
+                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(results,1));
+                for o=1:size(results,1)
+                    bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
                 end
-                bwo = max(bwo,[],3); clear o data
+                bwo = max(bwo,[],3); clear o results
                 data{rn,14} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 clear bwo
                 % Run Ellipses From Triangles (EFT)
                 profile on, edges = edge(bw,'canny');
-                data = ellipsesFromTriangles(edges,(2*7)+1);
+                results = ellipsesFromTriangles(edges,(2*7)+1);
                 stats = profile('info');
                 funct = find(cellfun(@(x)isequal(x,'ellipsesFromTriangles'),{stats.FunctionTable.FunctionName}));
                 time = stats.FunctionTable(funct).TotalTime;
                 memory = stats.FunctionTable(funct).TotalMemAllocated;
-                data{rn,15} = num2str(size(data,1));
+                data{rn,15} = num2str(size(results,1));
                 data{rn,16} = num2str(time); data{rn,17} = num2str(memory);
                 profile off, clear stats funct time memory edges
                 % EFT Jaccard
-                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(data,1));
-                for o=1:size(data,1)
-                    bwo(:,:,o) = ellipse2(size(bw),[data(o,1),data(o,2)],data(o,3),data(o,4),data(o,5));
+                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(results,1));
+                for o=1:size(results,1)
+                    bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
                 end
-                bwo = max(bwo,[],3); clear o data
+                bwo = max(bwo,[],3); clear o results
                 data{rn,18} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 clear bwo
             end
@@ -388,44 +388,44 @@ switch en
                 data{2} = num2str(k);
                 % Data
                 % Run POD
-                pod = pod2 (bw,[10,40],1,90);
-                data{3} = num2str(size(pod,1));
+                results = pod2 (bw,[10,40],1,90);
+                data{3} = num2str(size(results,1));
                 % POD Jaccard
-                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(pod,1));
-                for o=1:size(pod,1)
-                    bwo(:,:,o) = ellipse2(size(bw),[pod(o,1),pod(o,2)],pod(o,3),pod(o,4),pod(o,5));
+                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(results,1));
+                for o=1:size(results,1)
+                    bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
                 end
                 bwo = max(bwo,[],3);
                 data{4} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 % Run PODH
-                pod = podh (bw,[10,40],1,90);
-                data{5} = num2str(size(pod,1));
+                results = podh (bw,[10,40],1,90);
+                data{5} = num2str(size(results,1));
                 % PODH Jaccard
-                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(pod,1));
-                for o=1:size(pod,1)
-                    bwo(:,:,o) = ellipse2(size(bw),[pod(o,1),pod(o,2)],pod(o,3),pod(o,4),pod(o,5));
+                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(results,1));
+                for o=1:size(results,1)
+                    bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
                 end
                 bwo = max(bwo,[],3);
                 data{6} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 % Run Hough
                 edges = edge(bw,'canny');
-                data = ellipticalHough(edges,[10,40]);
-                data{7}= num2str(size(data,1));
+                results = ellipticalHough(edges,[10,40]);
+                data{7}= num2str(size(results,1));
                 % Hough Jaccard
-                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(data,1));
-                for o=1:size(data,1)
-                    bwo(:,:,o) = ellipse2(size(bw),[data(o,1),data(o,2)],data(o,3),data(o,4),data(o,5));
+                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(results,1));
+                for o=1:size(results,1)
+                    bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
                 end
                 bwo = max(bwo,[],3);
                 data{8} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 % Run Ellipses From Triangles (EFT)
                 edges = edge(bw,'canny');
-                data = ellipsesFromTriangles(edges,[10,40]);
-                data{9}= num2str(size(data,1));
+                results = ellipsesFromTriangles(edges,[10,40]);
+                data{9}= num2str(size(results,1));
                 % EFT Jaccard
-                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(data,1));
-                for o=1:size(data,1)
-                    bwo(:,:,o) = ellipse2(size(bw),[data(o,1),data(o,2)],data(o,3),data(o,4),data(o,5));
+                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(results,1));
+                for o=1:size(results,1)
+                    bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
                 end
                 bwo = max(bwo,[],3);
                 data{10} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
@@ -460,39 +460,39 @@ switch en
                     % Create Image
                     bw = ellipse2(64,[ceil((64+1)/2),ceil((64+1)/2)],major,minor,rot);
                     % Run POD
-                    pod = pod2 (bw);
-                    l = size(pod,1); data{6} = num2str(l);
+                    results = pod2 (bw);
+                    l = size(results,1); data{6} = num2str(l);
                     % POD Jaccard
                     bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,l);
                     for o=1:l
-                        bwo(:,:,o) = ellipse2(size(bw),[pod(o,1),pod(o,2)],pod(o,3),pod(o,4),pod(o,5));
+                        bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
                     end
                     bwo = max(bwo,[],3);
                     data{7} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                     % Run PODH
-                    pod = podh (bw);
-                    l = size(pod,1); data{8} = num2str(l);
+                    results = podh (bw);
+                    l = size(results,1); data{8} = num2str(l);
                     % PODH Jaccard
                     bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,l);
                     for o=1:l
-                        bwo(:,:,o) = ellipse2(size(bw),[pod(o,1),pod(o,2)],pod(o,3),pod(o,4),pod(o,5));
+                        bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
                     end
                     bwo = max(bwo,[],3);
                     data{9} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                     % Run Hough
-                    edges = edge(bw,'canny'); data = ellipticalHough(edges);
-                    l = size(data,1); data{10} = num2str(l);
+                    edges = edge(bw,'canny'); results = ellipticalHough(edges);
+                    l = size(results,1); data{10} = num2str(l);
                     % Hough Jaccard
                     bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,l);
                     for o=1:l
-                        bwo(:,:,o) = ellipse2(size(bw),[data(o,1),data(o,2)],data(o,3),data(o,4),data(o,5));
+                        bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
                     end
                     bwo = max(bwo,[],3);
                     data{11} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                     % Run Ellipses From Triangles (EFT)
                     try
-                        data = ellipsesFromTriangles(edges);
-                        l = size(data,1);
+                        results = ellipsesFromTriangles(edges);
+                        l = size(results,1);
                     catch
                         l=0;
                     end
@@ -501,7 +501,7 @@ switch en
                         % EFT Jaccard
                         bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,l);
                         for o=1:l
-                            bwo(:,:,o) = ellipse2(size(bw),[data(o,1),data(o,2)],data(o,3),data(o,4),data(o,5));
+                            bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
                         end
                         bwo = max(bwo,[],3);
                         data{13} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
@@ -554,46 +554,46 @@ switch en
                 data{rn,1} = num2str(rn);
                 data{rn,3} = num2str(actualSNR);
                 % Run POD
-                tic; pod = pod2 (bw1,[5,k],1,1);
+                tic; results = pod2 (bw1,[5,k],1,1);
                 data{rn,5} = num2str(toc);
                 % POD Jaccard
-                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(pod,1));
-                for o=1:size(pod,1)
-                    bwo(:,:,o) = ellipse2(size(bw),[pod(o,1),pod(o,2)],pod(o,3),pod(o,4),pod(o,5));
+                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(results,1));
+                for o=1:size(results,1)
+                    bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
                 end
                 bwo = max(bwo,[],3);
                 data{rn,4} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 % Run PODH
-                tic; pod = podh (bw1,[5,k],1,1);
+                tic; results = podh (bw1,[5,k],1,1);
                 data{rn,7} = num2str(toc);
                 % PODH Jaccard
-                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(pod,1));
-                for o=1:size(pod,1)
-                    bwo(:,:,o) = ellipse2(size(bw),[pod(o,1),pod(o,2)],pod(o,3),pod(o,4),pod(o,5));
+                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(results,1));
+                for o=1:size(results,1)
+                    bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
                 end
                 bwo = max(bwo,[],3);
                 data{rn,6} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 % Run Hough
                 tic; edges = edge(bw1,'canny');
-                data = ellipticalHough (edges,[5,k]);
+                results = ellipticalHough (edges,[5,k]);
                 data{rn,9} = num2str(toc);
                 clear edges
                 % Hough Jaccard
-                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(data,1));
-                for o=1:size(data,1)
-                    bwo(:,:,o) = ellipse2(size(bw),[data(o,1),data(o,2)],data(o,3),data(o,4),data(o,5));
+                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(results,1));
+                for o=1:size(results,1)
+                    bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
                 end
                 bwo = max(bwo,[],3);
                 data{rn,8} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 % Run Ellipses From Triangles (EFT)
                 tic; edges = edge(bw1,'canny');
-                data = ellipsesFromTriangles(edges);
+                results = ellipsesFromTriangles(edges);
                 data{11} = num2str(toc);
                 clear edges
                 % EFT Jaccard
                 bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,l);
-                for o=1:size(data,1)
-                    bwo(:,:,o) = ellipse2(size(bw),[data(o,1),data(o,2)],data(o,3),data(o,4),data(o,5));
+                for o=1:size(results,1)
+                    bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
                 end
                 bwo = max(bwo,[],3);
                 data{10} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
