@@ -181,13 +181,13 @@ switch en
         xposs = cell(200,1); yposs = cell(200,1); majors = cell(200,1);
         for l=1:200;
             % Add Ellipse to Figure
-            major=randi(11,1)+3; minor=randi(major-3,1)+3; rot=randi(180,1);
+            major=randi(7,1)+7; minor=randi(major-7,1)+7; rot=randi(180,1);
             xpos = randi(226)+15; ypos = randi(226)+15;
             if l>1
                 overlapping = true;
                 while overlapping
                     overlapping = false;
-                    for ps=2:l
+                    for ps=1:l
                         distmap = zeros(256,256);
                         distmap(xposs{ps},yposs{ps})=1;
                         distmap = bwdist(distmap);
@@ -203,6 +203,7 @@ switch en
             bwadd = ellipse2(256,[xpos,ypos],major,minor,rot);
             xposs{l} = xpos; yposs{l} = ypos; majors{l} = major;
             bw = max(bw,bwadd);
+            figure, subplot(221), imshow(bw)
             clear major minor rot xpos ypos overlapping distmap
             % Data
             data = cell(N,11);
@@ -211,20 +212,22 @@ switch en
                 % Data
                 data{rn,1} = num2str(rn);
                 % Run HEDAR
-                tic, results = hedar (bw,(2*7)+1);
+                tic, results = hedar (bw,32);
                 data{rn,4} = num2str(toc);
                 data{rn,3} = num2str(size(results,1));
+                disp(results)
                 % HEDAR Jaccard
                 bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(results,1));
                 for o=1:size(results,1)
                     bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
                 end
                 bwo = max(bwo,[],3); clear o results
+                subplot(222), imshow(bwo)
                 data{rn,5} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 clear bwo
                 % Run Hough
                 tic, edges = edge(bw,'canny');
-                results = ellipticalHough(edges,(2*7)+1);
+                results = ellipticalHough(edges,15);
                 data{rn,7} = num2str(toc);
                 data{rn,6} = num2str(size(results,1));
                 % Hough Jaccard
@@ -233,11 +236,12 @@ switch en
                     bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
                 end
                 bwo = max(bwo,[],3); clear o results
+                subplot(223), imshow(bwo)
                 data{rn,8} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 clear bwo
                 % Run Ellipses From Triangles (EFT)
                 tic, edges = imgradient(bw);
-                results = ellipsesFromTriangles(edges,(2*7)+1);
+                results = ellipsesFromTriangles(edges,15);
                 data{rn,10} = num2str(toc);
                 data{rn,9} = num2str(size(results,1));
                 % EFT Jaccard
@@ -246,6 +250,7 @@ switch en
                     bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
                 end
                 bwo = max(bwo,[],3); clear o results
+                subplot(224), imshow(bwo), drawnow
                 data{rn,11} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 clear bwo
             end
