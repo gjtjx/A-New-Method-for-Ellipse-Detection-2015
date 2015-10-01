@@ -38,11 +38,11 @@ switch en
         fid = fopen('experiment1.dat','w');
         fprintf(fid,'%s\r\n',headers); fclose(fid);
         % Set-Up
-        major=randi(27,1)+3; minor=randi(major-3,1)+3;
+        major=randi(23,1)+7; minor=randi(major-7,1)+7;
         rot=randi(180,1); ms = [64,128,256,512,1024];
         for m=1:length(ms)
             % Data
-            data = cell(N,11);
+            data = cell(N,8);
             data(:,2) = cellstr(num2str(repmat(ms(m),N,1)));
             % Create Image
             bw = ellipse2(ms(m),[ceil((ms(m)+1)/2),ceil((ms(m)+1)/2)],major,minor,rot);
@@ -50,7 +50,7 @@ switch en
                 % Data
                 data{rn,1} = num2str(rn);
                 % Run HEDAR
-                tic, results = hedar (bw,(2*15)+1);
+                tic, results = hedar (bw,33);
                 data{rn,3} = num2str(toc);
                 % HEDAR Jaccard
                 bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(results,1));
@@ -62,7 +62,7 @@ switch en
                 clear bwo
                 % Run Hough
                 tic, edges = edge(bw,'canny');
-                results = ellipticalHough(edges,(2*15)+1);
+                results = ellipticalHough(edges,33);
                 data{rn,5} = num2str(toc);
                 % Hough Jaccard
                 bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(results,1));
@@ -74,7 +74,7 @@ switch en
                 clear bwo
                 % Run Ellipses From Triangles (EFT)
                 tic, edges = edge(bw,'canny');
-                results = ellipsesFromTriangles(edges,(2*15)+1);
+                results = ellipsesFromTriangles(edges,33);
                 data{rn,7} = num2str(toc);
                 % EFT Jaccard
                 bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(results,1));

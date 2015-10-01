@@ -44,7 +44,7 @@ pairs = pairs(pairs(:,1) == 1,:); % throwing away unused pairs (triangles)
 npairs = size(pairs,1);
 
 % accumulate for pairs of triangles
-nquads = nquadsfactor*npairs;
+nquads = npairs*(npairs-1);
 iquads = zeros(nquads,2);
 A = zeros(nr,nc);
 count = 0;
