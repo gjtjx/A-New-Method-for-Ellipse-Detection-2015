@@ -44,14 +44,14 @@ pairs = pairs(pairs(:,1) == 1,:); % throwing away unused pairs (triangles)
 npairs = size(pairs,1);
 
 % accumulate for pairs of triangles
-nquads = npairs*(npairs-1);
+nquads = npairs*(npairs-1)/2;
 iquads = zeros(nquads,2);
 A = zeros(nr,nc);
 count = 0;
 
+% non random
 for i=1:npairs
-    for j=1:npairs
-        if i ~= j % pairs differ
+    for j=1:(i-1)
             midp1 = pairs(i,4:5)';
             dirv1 = pairs(i,6:7)';
             midp2 = pairs(j,4:5)';
@@ -76,7 +76,6 @@ for i=1:npairs
             end
             count = count+1;
             iquads(count,:) = [i j];
-        end
     end
 end
 A = A/max(max(A));
@@ -84,7 +83,7 @@ A = A/max(max(A));
 end
 
 % Copyright � 2014 New York University.
-% 
+%
 % All Rights Reserved. A license to use and copy this software and its documentation
 % solely for your internal research and evaluation purposes, without fee and without a signed licensing agreement,
 % is hereby granted upon your download of the software, through which you agree to the following:
@@ -96,23 +95,23 @@ end
 % Please Contact The Office of Industrial Liaison, New York University, One Park Avenue, 6th Floor,
 % New York, NY 10016 (212) 263-8178, for commercial licensing opportunities,
 % or for further distribution, modification or license rights.
-%  
+%
 % Created by Marcelo Cicconet.
-%  
+%
 % IN NO EVENT SHALL NYU, OR ITS EMPLOYEES, OFFICERS, AGENTS OR TRUSTEES (?COLLECTIVELY ?NYU PARTIES?)
 % BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES OF ANY KIND ,
 % INCLUDING LOST PROFITS, ARISING OUT OF ANY CLAIM RESULTING FROM YOUR USE OF THIS SOFTWARE AND ITS DOCUMENTATION,
 % EVEN IF ANY OF NYU PARTIES HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH CLAIM OR DAMAGE.
-%  
+%
 % NYU SPECIFICALLY DISCLAIMS ANY WARRANTIES OF ANY KIND REGARDING THE SOFTWARE,
 % INCLUDING, BUT NOT LIMITED TO, NON-INFRINGEMENT, THE IMPLIED WARRANTIES OF  MERCHANTABILITY
 % AND FITNESS FOR A PARTICULAR PURPOSE, OR THE ACCURACY OR USEFULNESS,
 % OR COMPLETENESS OF THE SOFTWARE. THE SOFTWARE AND ACCOMPANYING DOCUMENTATION,
 % IF ANY, PROVIDED HEREUNDER IS PROVIDED COMPLETELY "AS IS".
 % NYU HAS NO OBLIGATION TO PROVIDE FURTHER DOCUMENTATION, MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
-% 
+%
 % Please cite the following reference if you use this software in your research:
-% 
+%
 % Marcelo Cicconet, Davi Geiger, Kristin Gunsalus, and Michael Werman.
 % Mirror Symmetry Histograms for Capturing Geometric Properties in Images.
 % IEEE Conference on Computer Vision and Pattern Recognition. Columbus, Ohio. 2014.

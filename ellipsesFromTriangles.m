@@ -1,4 +1,4 @@
-function data = ellipsesFromTriangles(im,maxLength,resAngular,estNumber)
+function data = ellipsesFromTriangles(im,maxLength,resAngular)
 % ellipsesFromTriangles, ellipse finding algorithm that uses point and
 % tangent information. This code is a function wrapper for that found
 % https://bitbucket.org/cicconet/triangles_matlab. This wrapper uses a
@@ -28,7 +28,6 @@ function data = ellipsesFromTriangles(im,maxLength,resAngular,estNumber)
 %           major/minor axis length)
 %           resAngular - Integer value between 1 and 180 denoting angular
 %           resolution in degrees
-%           estNumber - estimated *maximum* number of ellipses
 %
 % Outputs   data - a matrix of ellipses. Each row contains five elements:
 %           the center of the ellipse, its major and minor axes and
@@ -75,49 +74,41 @@ else
     radrange = [1 ceil(maxLength/2)];
 end
 
-%% Recursion If No Number Estimation
-if nargin<4
-    estNumber=1;
-    data = ellipsesFromTriangles(im,maxLength,resAngular,estNumber);
-    while size(data,1)==estNumber
-        data = ellipsesFromTriangles(im,maxLength,resAngular,estNumber);
-        estNumber = 2*estNumber;
-    end
-else
-    im = mat2gray(im); % input should be double and in the range [0,1]
+im = mat2gray(im); % input should be double and in the range [0,1]
 
-    %% Points, Tangents, and Magnitudes
-    ignoredirections = 1;%treat 1-180 and 181-360 as same
-    stretch = 1;
-    scale = 1;
-    hopsize = 5;
-    halfwindowsize = 1;
-    magthreshold = 0.01;%eps;%set to ~0
-    [m,a,x,y] = coefficientslist(ignoredirections,im,180/resAngular,stretch,scale,hopsize,halfwindowsize,magthreshold);
+%% Points, Tangents, and Magnitudes
+ignoredirections = 1;%treat 1-180 and 181-360 as same
+stretch = 1;
+scale = 1;
+hopsize = 5;
+halfwindowsize = 1;
+magthreshold = 0.01;%set to ~0
+[m,a,x,y] = coefficientslist(ignoredirections,im,180/resAngular,stretch,scale,hopsize,halfwindowsize,magthreshold);
 
-    %% Create Accumulator Array
-    nquadsfactor = 8;%length(m); %set to an integer below length(m) to use randomisation
-    mindist = max(1,0.25*radrange(1));%minimum distance between points to consider them a useful set
-    maxdist = min(max(size(im)),2*radrange(2));%maximum distance between points to consider them a useful set
-    [A,pairs,iquads] = intacc(m,a,x,y,size(im,1),size(im,2),nquadsfactor,mindist,maxdist,radrange);
+%% Create Accumulator Array
+nquadsfactor = 8;%IGNORE IF USING LOCAL intacc %set to an integer below length(m) to use randomisation
+mindist = max(1,0.25*radrange(1));%minimum distance between points to consider them a useful set
+maxdist = min(max(size(im)),2*radrange(2));%maximum distance between points to consider them a useful set
+[A,pairs,iquads] = intacc(m,a,x,y,size(im,1),size(im,2),nquadsfactor,mindist,maxdist,radrange);
 
-    %% Locate Local Maxima Centers
-    hsize = 20;%5;%Sigma for Gaussian blur
-    halfwindow = 10;%8;%half width of neighbourhood to examine
-    mindistbetcent = 10;%2*radrange(1);%minimum distance between maxima, set to smallest expected diameter
-    lowerbound = 0.25;%eps;%lower intensity bound, set to ~0
-    minarea = 0.1;%eps;%minimum maxima area, set to ~0
-    [centers,~,~] = localmaxima(A,hsize,halfwindow,lowerbound,minarea,mindistbetcent,estNumber);
+%% Locate Local Maxima Centers
+hsize = 5;%Sigma for Gaussian blur
+halfwindow = 8;%half width of neighbourhood to examine
+mindistbetcent = 2*radrange(1);%minimum distance between maxima, set to smallest expected diameter
+lowerbound = 0.25;%eps;%lower intensity bound, set to ~0
+minarea = 0.1;%eps;%minimum maxima area, set to ~0
+[centers,~,~] = localmaxima(A,hsize,halfwindow,lowerbound,minarea,mindistbetcent,0);
 
-    %% Clustering and Separating of Ellipses
-    proximitythreshold = 2;
-    ellipseindices = clusterbyellipse(pairs,iquads,centers,proximitythreshold);
+%% Clustering and Separating of Ellipses
+proximitythreshold = 2;
+ellipseindices = clusterbyellipse(pairs,iquads,centers,proximitythreshold);
 
-    %% Remaining Parameters
-    [~,~,data] = paintellipses(im,m,a,x,y,centers,pairs,iquads,ellipseindices);
-    if size(data,1)>0
-        data(:,3:4) = 2*data(:,3:4);
-        data(:,5) = rad2deg(-(data(:,5)+pi));
-    end
+%% Remaining Parameters
+[~,~,data] = paintellipses(im,m,a,x,y,centers,pairs,iquads,ellipseindices);
+
+if size(data,1)>0
+    data(:,3:4) = 2*data(:,3:4);%change half-axis to axis length
+    data(:,5) = rad2deg(data(:,5))-90;%set rotation from x axis not y axis
+    data(:,1:2) = data(:,2:-1:1);%invert x and y
 end
 end
