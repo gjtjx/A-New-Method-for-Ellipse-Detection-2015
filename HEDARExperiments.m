@@ -200,10 +200,11 @@ switch en
                 end
             end
             clear overlapping ps distmap
+            % disp([xpos,ypos,major,minor,rot])
             bwadd = ellipse2(256,[xpos,ypos],major,minor,rot);
             xposs{l} = xpos; yposs{l} = ypos; majors{l} = major;
-            bw = max(bw,bwadd);
-            figure, subplot(221), imshow(bw)
+            bw = double((bw+bwadd)>0);
+            % figure(1), subplot(221), imshow(bw)
             clear major minor rot xpos ypos overlapping distmap
             % Data
             data = cell(N,11);
@@ -215,14 +216,14 @@ switch en
                 tic, results = hedar (bw,32);
                 data{rn,4} = num2str(toc);
                 data{rn,3} = num2str(size(results,1));
-                disp(results)
+                % disp(results)
                 % HEDAR Jaccard
                 bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(results,1));
                 for o=1:size(results,1)
                     bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
                 end
                 bwo = max(bwo,[],3); clear o results
-                subplot(222), imshow(bwo)
+                % figure(1), subplot(222), imshow(bwo)
                 data{rn,5} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 clear bwo
                 % Run Hough
@@ -236,7 +237,7 @@ switch en
                     bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
                 end
                 bwo = max(bwo,[],3); clear o results
-                subplot(223), imshow(bwo)
+                % figure(1), subplot(223), imshow(bwo)
                 data{rn,8} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 clear bwo
                 % Run Ellipses From Triangles (EFT)
@@ -250,7 +251,7 @@ switch en
                     bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
                 end
                 bwo = max(bwo,[],3); clear o results
-                subplot(224), imshow(bwo), drawnow
+                % figure(1), subplot(224), imshow(bwo), drawnow
                 data{rn,11} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 clear bwo
             end
@@ -340,8 +341,8 @@ switch en
         fprintf(fid,'%s\r\n',headers); fclose(fid);
         major = 30;%Only use one major axis value for accuracy maps
         parfor rot=0:179
-            %for major=3:30
-                for minor=3:major
+            % for major=3:30
+                for minor=1:major
                     % Data Set-Up
                     data = cell(1,11);
                     data{1} = num2str(ceil((64+1)/2));
@@ -393,7 +394,7 @@ switch en
                     fprintf(fid,'%s\r\n',data);
                     fclose(fid);
                 end
-            %end
+            % end
         end
 %% Experiment 6 - Change SNR (binary)
     case 6

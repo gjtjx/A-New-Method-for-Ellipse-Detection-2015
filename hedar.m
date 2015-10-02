@@ -113,6 +113,7 @@ hilbdrop = reshape(hilbdrop,size(granulometricSignals,1),size(granulometricSigna
 clear signals
 %% Major & Minor Axes
 [majorAxis,majorOrientation] = max(hilbdrop,[],3);
+% figure(20), subplot(221), imagesc(majorAxis)
 X = 1:size(gap,1);
 idx = sub2ind(size(gap),X',majorOrientation(:));
 gap = gap(idx);
@@ -122,6 +123,7 @@ minorOrientation = mod(majorOrientation-((90+resAngular)/resAngular),180/resAngu
 idr = sub2ind(size(hilbdrop),y(:),x(:),minorOrientation(:));
 minorAxis = hilbdrop(idr);
 minorAxis = reshape(minorAxis,size(majorAxis));
+% figure(20), subplot(222), imagesc(minorAxis)
 clear minorOrientation hilbdrop resAngular x y idr idx X granulometricSignals
 %% Background Check
 backgroundM = (majorAxis==1); backgroundm = (minorAxis==1);
@@ -137,15 +139,17 @@ clear backgroundM backgroundm backgroundG background
 minorAxisMasked =  minorAxis.* (minorAxis>1);
 majorAxisMasked =  majorAxis.* (majorAxis>1);
 regionalPeaks = majorAxisMasked.*minorAxisMasked;
+% figure(20), subplot(223), imagesc(regionalPeaks)
 % regionalPeaks = medfilt2(regionalPeaks, [3,3]);
 regionalMaxima = logical(regionalPeaks - imreconstruct(regionalPeaks-1,regionalPeaks));
 centroids = regionprops(regionalMaxima,'Centroid');
 centroids = reshape(cell2mat(struct2cell(centroids))',2,[])';
+% figure(20), subplot(224), imagesc(regionalMaxima), drawnow
 clear minorAxisMasked majorAxisMasked regionalPeaks regionalMaxima
 %% Compile Data
 data = zeros(size(centroids,1),5);
 data(:,1:2) = round(centroids);
-idc = sub2ind([m,n],data(:,1),data(:,2));
+idc = sub2ind([m,n],data(:,2),data(:,1));
 data(:,3) = lengthSteps(majorAxis(idc));
 data(:,4) = lengthSteps(minorAxis(idc));
 data(:,5) = angularSteps(majorOrientation(idc));
