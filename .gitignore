@@ -9,3 +9,9 @@
 *.mat
 **/images/
 runall.m
+experiment1.dat
+experiment2.dat
+experiment3.dat
+experiment4.dat
+experiment5.dat
+experiment6.dat
