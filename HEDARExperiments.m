@@ -384,7 +384,11 @@ switch en
                     % EFT Jaccard
                     bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,max(1,l));
                     for o=1:l
-                        bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
+                        try
+                            bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
+                        catch
+                            disp(results(o,:))
+                        end
                     end
                     bwo = max(bwo,[],3);
                     data{11} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));

@@ -47,12 +47,7 @@ bw = zeros(m,n);
 %% Circumference & Parameterisation in Theta
 h = (major-minor)^2/(major+minor)^2;
 circ = pi*(major+minor)*(1+((3*h)/(10+sqrt(4-(3*h)))));%Approximate (Ramanujan, 1914)
-try
-    theta = linspace(0,2*pi,100*round(circ));
-catch
-    disp([major, minor])
-    disp(circ)
-end
+theta = linspace(0,2*pi,100*round(circ));
 %% Calculate Ellipse Outline Pixels
 x = x0 + 0.5*(major*cos(theta)*cosd(-phi) - minor*sin(theta)*sind(-phi));
 y = y0 + 0.5*(major*cos(theta)*sind(-phi) + minor*sin(theta)*cosd(-phi));
