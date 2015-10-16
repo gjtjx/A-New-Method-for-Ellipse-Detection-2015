@@ -451,12 +451,14 @@ switch en
         major=randi(20,1)+10; minor=randi(major-10,1)+10;
         rot=randi(180,1); m=128; k=35;
         for rn = 1:N
+            disp('Repeat: '+num2str(rn)+';');
             % Data
             data = cell(35,11);
             data(:,1) = cellstr(num2str(repmat(rn,35,1)));
             % Create Image
             bw = ellipse2(m,[ceil((m+1)/2),ceil((m+1)/2)],major,minor,rot);
             for snr=34:-1:0
+                disp('SNR: '+num2str(snr)+';');
                 % Apply Noise
                 noise = (10^(-(snr-5)/20) * (randn(size(bw))));
                 bw1 = bw+noise;
