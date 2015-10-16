@@ -2,8 +2,9 @@
 % See notice at the end of this file.
 
 function [A,pairs,iquads] = intacc(m,a,x,y,nr,nc,nquadsfactor,mindist,maxdist,radrange)
-%%Replaces the default intacc and removes randomisation
-%disp('Not using randomisation!')
+% This is a local files that replaces the default intacc.m file from the
+% 'triangles_matlab' repository. This copy removes randomisation from the
+% process, resulting in increased running time but much improved stability.
 
 % intersections accumulator
 

@@ -33,7 +33,8 @@ switch en
         headers = {'N','m',...
             'HEDAR:time','HEDAR:Jaccard',...
             'Hough:time','Hough:Jaccard',...
-            'EFT:time','EFT:Jaccard'};
+            'EFT:time','EFT:Jaccard',...
+            'HAEF:time','HAEF:Jaccard'};
         headers = strjoin(headers,',');
         fid = fopen('experiment1.dat','w');
         fprintf(fid,'%s\r\n',headers); fclose(fid);
@@ -42,7 +43,7 @@ switch en
         rot=randi(180,1); ms = [64,128,256,512];
         for m=1:length(ms)
             % Data
-            data = cell(N,8);
+            data = cell(N,10);
             data(:,2) = cellstr(num2str(repmat(ms(m),N,1)));
             % Create Image
             bw = ellipse2(ms(m),[ceil((ms(m)+1)/2),ceil((ms(m)+1)/2)],major,minor,rot);
@@ -83,6 +84,18 @@ switch en
                 end
                 bwo = max(bwo,[],3); clear o results
                 data{rn,8} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
+                clear bwo
+                % Run Hyper Accurate Ellipse Fitting (HAEF)
+                tic, edges = imgradient(bw);
+                results = hyperAccurateEllipseFitting(edges);
+                data{rn,9} = num2str(toc);
+                % EFT Jaccard
+                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,max(1,size(results,1)));
+                for o=1:size(results,1)
+                    bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
+                end
+                bwo = max(bwo,[],3); clear o results
+                data{rn,10} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 clear bwo
             end
             % Append Data to File
@@ -153,6 +166,8 @@ switch en
                 bwo = max(bwo,[],3); clear o results
                 data{rn,8} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 clear bwo
+                % DO NOT Run Hyper Accurate Ellipse Fitting (HAEF)
+                % As HAEF does not use kernel size
             end
             % Append Data to File
             fid = fopen('experiment2.dat','a+');
@@ -254,6 +269,8 @@ switch en
                 % figure(1), subplot(224), imshow(bwo), drawnow
                 data{rn,11} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 clear bwo
+                % DO NOT Run Hyper Accurate Ellipse Fitting (HAEF)
+                % As HAEF does not use kernel size
             end
             % Append Data to File
             fid = fopen('experiment3.dat','a+');
@@ -323,6 +340,8 @@ switch en
                 end
                 bwo = max(bwo,[],3);
                 data{8} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
+                % DO NOT Run Hyper Accurate Ellipse Fitting (HAEF)
+                % As HAEF does not use kernel size
                 % Append Data to File
                 fid = fopen('experiment4.dat','a+');
                 data = strjoin(data,',');
@@ -336,7 +355,8 @@ switch en
         headers = {'X','Y','Major','Minor','Rotation',...
             'HEDAR:n','HEDAR:Jaccard',...
             'Hough:n','Hough:Jaccard',...
-            'EFT:n','EFT:Jaccard'};
+            'EFT:n','EFT:Jaccard',...
+            'HAEF:n','HAEF:Jaccard'};
         headers = strjoin(headers,','); fid = fopen('experiment5.dat','w');
         fprintf(fid,'%s\r\n',headers); fclose(fid);
         major = 30;%Only use one major axis value for accuracy maps
@@ -344,7 +364,7 @@ switch en
             % for major=3:30
                 for minor=1:major
                     % Data Set-Up
-                    data = cell(1,11);
+                    data = cell(1,13);
                     data{1} = num2str(ceil((64+1)/2));
                     data{2} = num2str(ceil((64+1)/2));
                     data{3} = num2str(major);
@@ -392,6 +412,18 @@ switch en
                     end
                     bwo = max(bwo,[],3);
                     data{11} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
+                    % Run Hyper Accurate Ellipse Fitting (HAEF)
+                    edges = imgradient(bw);
+                    results = hyperAccurateEllipseFitting(edges);
+                    l = size(results,1);
+                    data{12} = num2str(l);
+                    % HAEF Jaccard
+                    bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,max(1,size(results,1)));
+                    for o=1:size(results,1)
+                        bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
+                    end
+                    bwo = max(bwo,[],3);
+                    data{13} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                     % Append Data to File
                     fid = fopen('experiment5.dat','a+');
                     data = strjoin(data,',');
@@ -408,7 +440,8 @@ switch en
         headers = {'N','SNR-Theoretical','SNR-Real',...
             'HEDAR:Jaccard','HEDAR:Time',...
             'Hough:Jaccard','Hough:Time',...
-            'EFT:Jaccard','EFT:Time'};
+            'EFT:Jaccard','EFT:Time',...
+            'HAEF:Jaccard','HAEF:Time'};
         headers = strjoin(headers,',');
         fid = fopen('experiment6.dat','w');
         fprintf(fid,'%s\r\n',headers);
@@ -417,13 +450,13 @@ switch en
         % Set-Up
         major=randi(20,1)+10; minor=randi(major-10,1)+10;
         rot=randi(180,1); m=128; k=35;
-        for snr=34:-1:0
+        for rn = 1:N
             % Data
-            data = cell(N,9);
-            data(:,2) = cellstr(num2str(repmat(snr,N,1)));
+            data = cell(35,11);
+            data(:,1) = cellstr(num2str(repmat(rn,35,1)));
             % Create Image
             bw = ellipse2(m,[ceil((m+1)/2),ceil((m+1)/2)],major,minor,rot);
-            for rn = 1:N
+            for snr=34:-1:0
                 % Apply Noise
                 noise = (10^(-(snr-5)/20) * (randn(size(bw))));
                 bw1 = bw+noise;
@@ -434,22 +467,22 @@ switch en
                 % Blur (to remove noise)
                 bw1 = imgaussfilt(bw1,3);
                 % Data
-                data{rn,1} = num2str(rn);
-                data{rn,3} = num2str(actualSNR);
+                data{snr,2} = num2str(snr);
+                data{snr,3} = num2str(actualSNR);
                 % Run HEDAR
                 tic; results = hedar (bw1,[5,k],1,1);
-                data{rn,5} = num2str(toc);
+                data{snr,5} = num2str(toc);
                 % HEDAR Jaccard
                 bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,size(results,1));
                 for o=1:size(results,1)
                     bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
                 end
                 bwo = max(bwo,[],3);
-                data{rn,4} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
+                data{snr,4} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 % Run Hough
                 tic; edges = edge(bw1,'canny');
                 results = ellipticalHough (edges,[5,k]);
-                data{rn,7} = num2str(toc);
+                data{snr,7} = num2str(toc);
                 clear edges
                 % Hough Jaccard
                 bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,max(1,size(results,1)));
@@ -457,11 +490,15 @@ switch en
                     bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
                 end
                 bwo = max(bwo,[],3);
-                data{rn,6} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
+                data{snr,6} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
                 % Run Ellipses From Triangles (EFT)
-                tic; edges = imgradient(bw);
-                results = ellipsesFromTriangles(edges);
-                data{rn,9} = num2str(toc);
+                tic; edges = imgradient(bw1);
+                try%memory issues when very noisy
+                    results = ellipsesFromTriangles(edges);
+                catch
+                    results = [];
+                end
+                data{snr,9} = num2str(toc);
                 clear edges
                 % EFT Jaccard
                 bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,max(1,size(results,1)));
@@ -469,7 +506,19 @@ switch en
                     bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
                 end
                 bwo = max(bwo,[],3);
-                data{rn,8} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
+                data{snr,8} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
+                % Run Hyper Accurate Ellipse Fitting (HAEF)
+                tic; edges = imgradient(bw1);
+                results = hyperAccurateEllipseFitting(edges);
+                data{snr,11} = num2str(toc);
+                clear edges
+                % HAEF Jaccard
+                bwo = zeros(size(bw)); bwo = repmat(bwo,1,1,max(1,size(results,1)));
+                for o=1:size(results,1)
+                    bwo(:,:,o) = ellipse2(size(bw),[results(o,1),results(o,2)],results(o,3),results(o,4),results(o,5));
+                end
+                bwo = max(bwo,[],3);
+                data{snr,10} = num2str(sum(sum(imabsdiff(bw,bwo)))/sum(bw(:)|bwo(:)));
             end
             % Append Data to File
             fid = fopen('experiment6.dat','a+');

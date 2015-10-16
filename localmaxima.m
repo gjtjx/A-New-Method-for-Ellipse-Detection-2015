@@ -1,8 +1,9 @@
 % Copyright � 2014 New York University.
 % See notice at the end of this file.
 
-function [locs,I,J] = localmaxima(IIn,hsize,halfwindow,lowerbound,minarea,mindistbetcent,nlocmax)
-% local version ignores max estimate
+function [locs,I,J] = localmaxima(IIn,hsize,halfwindow,lowerbound,minarea,mindistbetcent)
+% This is a local copy of the localmaxima.m file found in the repository
+% 'triangles_matlab'; this version ignores the maximum estimate property.
 H = fspecial('gaussian',hsize,hsize/4);
 I = conv2(double(IIn),H,'same');
 I = I/max(max(I));
@@ -72,15 +73,6 @@ while mn1 < mindistbetcent
 end
 
 locs = centers;
-
-% while size(locs,2) > nlocmax
-%     ms = zeros(1,size(locs,2));
-%     for i = 1:size(locs,2)
-%         ms(i) = I(locs(1,i),locs(2,i));
-%     end
-%     [~,im] = min(ms);
-%     locs(:,im) = [];
-% end
 
 end
 

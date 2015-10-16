@@ -16,13 +16,18 @@ function data = ellipsesFromTriangles(im,maxLength,resAngular)
 %               https://bitbucket.org/cicconet/pat
 %           Please add these repositories to your MATLAB path.
 %
+%           There is a local copy of two files. The local copy of localmaxima.m
+%           removes the randomisation, whilst this may increase running time
+%           we found it to be much more stable. The local copy of intacc.m
+%           removes the 'maximum number of objects' property.
+%
 %           Please cite the original works if you use this software in
 %           your research:
 %               Marcelo Cicconet, Davi Geiger, Kristin Gunsalus, and Michael Werman.
 %               Mirror Symmetry Histograms for Capturing Geometric Properties in Images.
 %               IEEE Conference on Computer Vision and Pattern Recognition. Columbus, Ohio. 2014
 %
-% Inputs    im - Image
+% Inputs    im - Edge image (binary or grayscale)
 %           maxLength - Scale value denoting the maximum major/minor axis
 %           length to consider (if a vector denotes [minimum,maximum]
 %           major/minor axis length)
@@ -37,9 +42,8 @@ function data = ellipsesFromTriangles(im,maxLength,resAngular)
 %           D.and Werman, M.; 2014).
 %
 % Examples:
-% data = ellipsesFromTriangles(im,[10,20],45,10), detects up to ten
-% ellipses with half-axes of lengths between 10 and 20 pixels at an angular
-% resolution of 45 degrees.
+% data = ellipsesFromTriangles(im,[10,20],45), detects ellipses with half-axes
+% of lengths between 10 and 20 pixels at an angular resolution of 45 degrees.
 %
 % License   Redistribution and use in source and binary forms, with or
 %           without modification, are permitted provided that the
@@ -63,7 +67,7 @@ function data = ellipsesFromTriangles(im,maxLength,resAngular)
 %            NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 %            SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 %
-% See also POD2, PODH, PODEXPERIMENTS
+% See also HEDAR, HYPERACCURATEELLIPSEFITTING, HEDAREXPERIMENTS
 %% Inputs
 % Set the estimated semi-minor and semi-major axis interval
 if nargin<3 || isempty(resAngular); resAngular = 1; end
@@ -97,7 +101,7 @@ halfwindow = 8;%half width of neighbourhood to examine
 mindistbetcent = 2*radrange(1);%minimum distance between maxima, set to smallest expected diameter
 lowerbound = 0.25;%eps;%lower intensity bound, set to ~0
 minarea = 0.1;%eps;%minimum maxima area, set to ~0
-[centers,~,~] = localmaxima(A,hsize,halfwindow,lowerbound,minarea,mindistbetcent,0);
+[centers,~,~] = localmaxima(A,hsize,halfwindow,lowerbound,minarea,mindistbetcent);
 
 %% Clustering and Separating of Ellipses
 proximitythreshold = 2;
